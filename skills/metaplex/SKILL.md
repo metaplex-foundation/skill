@@ -40,6 +40,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` |
 | CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` |
 | CLI: Candy Machine (NFT drops) | `./references/cli.md` + `./references/cli-candy-machine.md` |
+| CLI: Token launch (Genesis) | `./references/cli.md` + `./references/cli-genesis.md` |
 | CLI: Fungible tokens | `./references/cli.md` (toolbox section) |
 | SDK setup (Umi) | `./references/sdk-umi.md` |
 | SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` |
@@ -66,7 +67,7 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 | Compressed NFTs (cNFTs) | ✅ (batch limit ~100, use SDK for larger) |
 | Check SOL balance / Airdrop | ✅ |
 | Query assets by owner/collection | ❌ SDK only (DAS API) |
-| Token launch (Genesis) | ❌ SDK only |
+| Token launch (Genesis) | ✅ |
 
 ## Program IDs
 
@@ -102,7 +103,7 @@ Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy
 
 ### Token Launches (Token Generation Event / Fair Launch)
 
-Use **Genesis** via Umi SDK. Read `./references/sdk-genesis.md`.
+Use **Genesis**. Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
 
 ## External Resources
 
