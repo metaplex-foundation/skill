@@ -12,6 +12,12 @@ npm install @metaplex-foundation/genesis @metaplex-foundation/umi-bundle-default
 
 ## Before Starting — Gather from User
 
+**For Launch API** (recommended):
+1. **Token details**: name (1-32 chars), symbol (1-10 chars), image (Irys URL), description (optional, max 250 chars)
+2. **Launch pool**: token allocation (portion of 1B), deposit start time, raise goal, Raydium liquidity %, funds recipient
+3. **Optional**: locked allocations (team vesting), external links (website, twitter, telegram), quote mint (SOL/USDC)
+
+**For low-level SDK**:
 1. **Token details**: name, symbol, description, image/metadata URI
 2. **Total supply**: how many tokens (remember: with 9 decimals, 1M tokens = `1_000_000_000_000_000n`)
 3. **Allocation split**: percentage for launchpool vs team/treasury
@@ -31,6 +37,12 @@ npm install @metaplex-foundation/genesis @metaplex-foundation/umi-bundle-default
 
 ## Launch Lifecycle
 
+**Launch API** (recommended):
+```
+createAndRegisterLaunch()  →  deposit window (48h)  →  Raydium graduation  →  claim
+```
+
+**Low-level SDK**:
 ```
 1. Initialize Genesis Account → Creates token + coordination account
 2. Add Buckets → Configure distribution (LaunchPool, Unlocked, etc.)
@@ -42,7 +54,199 @@ npm install @metaplex-foundation/genesis @metaplex-foundation/umi-bundle-default
 
 ---
 
-## Setup
+## Launch API (Recommended)
+
+The Launch API handles everything in a single call: token creation, genesis account setup, launch pool configuration, Raydium LP, transaction signing, and platform registration.
+
+### `createAndRegisterLaunch` — All-in-One
+
+```typescript
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { keypairIdentity } from '@metaplex-foundation/umi';
+import {
+  createAndRegisterLaunch,
+  CreateLaunchInput,
+} from '@metaplex-foundation/genesis';
+
+const umi = createUmi('https://api.mainnet-beta.solana.com')
+  .use(keypairIdentity(myKeypair));
+
+const input: CreateLaunchInput = {
+  wallet: umi.identity.publicKey,
+  token: {
+    name: 'My Token',
+    symbol: 'MTK',
+    image: 'https://gateway.irys.xyz/...',
+    // optional:
+    description: 'A revolutionary token',
+    externalLinks: {
+      website: 'https://mytoken.com',
+      twitter: 'https://twitter.com/mytoken',
+      telegram: 'https://t.me/mytoken',
+    },
+  },
+  launchType: 'project',
+  launch: {
+    launchpool: {
+      tokenAllocation: 500_000_000,   // out of 1B total supply
+      depositStartTime: new Date(Date.now() + 48 * 60 * 60 * 1000),
+      raiseGoal: 200,                 // 200 SOL (whole units)
+      raydiumLiquidityBps: 5000,      // 50% to Raydium LP
+      fundsRecipient: umi.identity.publicKey,
+    },
+  },
+  // optional:
+  quoteMint: 'SOL',                   // 'SOL' | 'USDC' | mint address
+  network: 'solana-mainnet',          // auto-detected if omitted
+};
+
+const result = await createAndRegisterLaunch(umi, { baseUrl: 'https://api.metaplex.com' }, input);
+
+console.log('Genesis account:', result.genesisAccount);
+console.log('Mint:', result.mintAddress);
+console.log('Launch page:', result.launch.link);
+console.log('Signatures:', result.signatures);
+```
+
+### With Locked Allocations (Team Vesting via Streamflow)
+
+```typescript
+const input: CreateLaunchInput = {
+  wallet: umi.identity.publicKey,
+  token: {
+    name: 'My Token',
+    symbol: 'MTK',
+    image: 'https://gateway.irys.xyz/...',
+  },
+  launchType: 'project',
+  launch: {
+    launchpool: {
+      tokenAllocation: 500_000_000,
+      depositStartTime: new Date('2026-03-01T00:00:00Z'),
+      raiseGoal: 200,
+      raydiumLiquidityBps: 5000,
+      fundsRecipient: umi.identity.publicKey,
+    },
+    lockedAllocations: [
+      {
+        name: 'Team',
+        recipient: 'TeamWallet111...',
+        tokenAmount: 100_000_000,
+        vestingStartTime: new Date('2026-04-05T00:00:00Z'),
+        vestingDuration: { value: 1, unit: 'YEAR' },
+        unlockSchedule: 'MONTH',
+        cliff: {
+          duration: { value: 3, unit: 'MONTH' },
+          unlockAmount: 10_000_000,
+        },
+      },
+    ],
+  },
+};
+```
+
+TimeUnit values: `'SECOND'`, `'MINUTE'`, `'HOUR'`, `'DAY'`, `'WEEK'`, `'TWO_WEEKS'`, `'MONTH'`, `'QUARTER'`, `'YEAR'`.
+
+### `createLaunch` + `registerLaunch` — Full Control
+
+Use when you need custom transaction handling (multisig, custom sending logic).
+
+```typescript
+import {
+  createLaunch,
+  registerLaunch,
+  GenesisApiConfig,
+} from '@metaplex-foundation/genesis';
+
+const config: GenesisApiConfig = { baseUrl: 'https://api.metaplex.com' };
+
+// Step 1: Get unsigned transactions
+const createResult = await createLaunch(umi, config, input);
+// createResult.transactions — unsigned Umi transactions
+// createResult.blockhash — for confirmation strategy
+// createResult.mintAddress, createResult.genesisAccount
+
+// Step 2: Sign and send transactions yourself
+for (const tx of createResult.transactions) {
+  const signedTx = await umi.identity.signTransaction(tx);
+  const signature = await umi.rpc.sendTransaction(signedTx, { commitment: 'confirmed' });
+  await umi.rpc.confirmTransaction(signature, {
+    commitment: 'confirmed',
+    strategy: { type: 'blockhash', ...createResult.blockhash },
+  });
+}
+
+// Step 3: Register on the platform (idempotent — safe to retry)
+const registerResult = await registerLaunch(umi, config, {
+  genesisAccount: createResult.genesisAccount,
+  createLaunchInput: input,
+});
+console.log('Launch page:', registerResult.launch.link);
+```
+
+### Custom Transaction Sender
+
+```typescript
+import {
+  createAndRegisterLaunch,
+  SignAndSendOptions,
+} from '@metaplex-foundation/genesis';
+
+const options: SignAndSendOptions = {
+  txSender: async (transactions) => {
+    const signatures: Uint8Array[] = [];
+    for (const tx of transactions) {
+      const signed = await myMultisigSign(tx);
+      const sig = await myCustomSend(signed);
+      signatures.push(sig);
+    }
+    return signatures;
+  },
+};
+
+const result = await createAndRegisterLaunch(umi, config, input, options);
+```
+
+### Error Handling
+
+```typescript
+import {
+  createAndRegisterLaunch,
+  isGenesisValidationError,
+  isGenesisApiError,
+  isGenesisApiNetworkError,
+} from '@metaplex-foundation/genesis';
+
+try {
+  const result = await createAndRegisterLaunch(umi, config, input);
+} catch (err) {
+  if (isGenesisValidationError(err)) {
+    console.error(`Invalid "${err.field}":`, err.message);
+  } else if (isGenesisApiError(err)) {
+    console.error('API error:', err.statusCode, err.responseBody);
+  } else if (isGenesisApiNetworkError(err)) {
+    console.error('Network error:', err.cause.message);
+  }
+}
+```
+
+### Launch API Key Points
+
+- **Total supply** is always 1 billion tokens; `tokenAllocation` is how many go to the launch pool
+- **Deposit window** is always 48 hours from `depositStartTime`
+- **raiseGoal** and amounts are in **whole units** (e.g., `200` = 200 SOL), NOT base units
+- **Image** must be hosted on Irys (`https://gateway.irys.xyz/...`)
+- Remaining tokens (1B minus launchpool minus locked) go to the creator automatically
+- **registerLaunch** is idempotent — safe to call again if it fails
+- Fund routing is automatic: `raydiumLiquidityBps` goes to Raydium LP, rest goes to `fundsRecipient`
+
+---
+
+## Low-Level SDK
+
+The following sections cover direct on-chain instructions for full control over genesis accounts and buckets.
+
+### Setup
 
 ```typescript
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
