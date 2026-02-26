@@ -103,7 +103,9 @@ Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy
 
 ### Token Launches (Token Generation Event / Fair Launch)
 
-Use **Genesis**. Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
+Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegisterLaunch`) is recommended — it handles everything in one step. For full control, use low-level commands/SDK.
+
+Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
 
 ## External Resources
 

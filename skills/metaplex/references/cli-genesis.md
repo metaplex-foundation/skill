@@ -10,13 +10,33 @@ Commands for creating and managing token launches (TGEs) via the `mplx` CLI.
 
 ## Lifecycle
 
+**Low-level** (manual on-chain setup):
 ```
 create → bucket add-* → finalize → deposit → transition → claim → revoke
+```
+
+**Launch API** (recommended — handles everything in one command):
+```
+launch create  →  deposit window opens  →  Raydium graduation  →  claim
 ```
 
 ---
 
 ## Commands
+
+### Launch API (Recommended)
+
+```bash
+# Create and register a launch (all-in-one)
+mplx genesis launch create --name <NAME> --symbol <SYMBOL> \
+  --image <IRYS_URL> --tokenAllocation <AMOUNT> --depositStartTime <ISO_DATE_OR_UNIX_TS> \
+  --raiseGoal <WHOLE_UNITS> --raydiumLiquidityBps <BPS> --fundsRecipient <ADDR>
+
+# Register an existing genesis account on the platform
+mplx genesis launch register <GENESIS_ACCOUNT> --launchConfig <PATH_TO_JSON>
+```
+
+### Low-Level Commands
 
 ```bash
 # Create Genesis account
@@ -59,6 +79,96 @@ mplx genesis revoke <GENESIS> --revokeMint --revokeFreeze
 ---
 
 ## Command Details
+
+### `mplx genesis launch create`
+
+All-in-one command: creates the token, sets up the genesis account with a launch pool, optionally adds locked (vesting) allocations, signs and sends transactions, then registers the launch on the Metaplex platform. Returns a public launch page link.
+
+| Flag | Short | Required | Default | Description |
+|------|-------|----------|---------|-------------|
+| `--name` | `-n` | Yes | - | Token name (1-32 characters) |
+| `--symbol` | `-s` | Yes | - | Token symbol (1-10 characters) |
+| `--image` | - | Yes | - | Token image URL (must be `https://gateway.irys.xyz/...`) |
+| `--tokenAllocation` | - | Yes | - | Launch pool token allocation (portion of 1B total supply) |
+| `--depositStartTime` | - | Yes | - | ISO date string or unix timestamp; deposit lasts 48 hours |
+| `--raiseGoal` | - | Yes | - | Minimum quote tokens to raise, in **whole units** (e.g., `200` = 200 SOL) |
+| `--raydiumLiquidityBps` | - | Yes | - | Basis points for Raydium LP (2000-10000, i.e., 20%-100%) |
+| `--fundsRecipient` | - | Yes | - | Wallet receiving the unlocked portion of raised funds |
+| `--description` | - | No | - | Token description (max 250 characters) |
+| `--website` | - | No | - | Project website URL |
+| `--twitter` | - | No | - | Project Twitter URL |
+| `--telegram` | - | No | - | Project Telegram URL |
+| `--lockedAllocations` | - | No | - | Path to JSON file with locked allocation configs (Streamflow vesting) |
+| `--quoteMint` | - | No | `SOL` | `SOL`, `USDC`, or a mint address |
+| `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
+| `--apiUrl` | - | No | `https://api.metaplex.com` | Genesis API base URL |
+
+**Output**: Genesis account address, mint address, launch ID, launch link, token ID, transaction signatures.
+
+**Locked Allocations JSON** (`--lockedAllocations` file format):
+```json
+[
+  {
+    "name": "Team",
+    "recipient": "<ADDRESS>",
+    "tokenAmount": 100000000,
+    "vestingStartTime": "2026-04-05T00:00:00Z",
+    "vestingDuration": { "value": 1, "unit": "YEAR" },
+    "unlockSchedule": "MONTH",
+    "cliff": {
+      "duration": { "value": 3, "unit": "MONTH" },
+      "unlockAmount": 10000000
+    }
+  }
+]
+```
+
+TimeUnit values: `SECOND`, `MINUTE`, `HOUR`, `DAY`, `WEEK`, `TWO_WEEKS`, `MONTH`, `QUARTER`, `YEAR`.
+
+### `mplx genesis launch register <GENESIS_ACCOUNT>`
+
+Registers an existing genesis account (created via low-level commands or SDK) with the Metaplex platform to get a public launch page.
+
+| Flag | Short | Required | Default | Description |
+|------|-------|----------|---------|-------------|
+| `--launchConfig` | - | Yes | - | Path to JSON file with launch configuration |
+| `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
+| `--apiUrl` | - | No | `https://api.metaplex.com` | Genesis API base URL |
+
+**Launch Config JSON** (`--launchConfig` file format):
+```json
+{
+  "wallet": "<ADDRESS>",
+  "token": {
+    "name": "My Token",
+    "symbol": "MTK",
+    "image": "https://gateway.irys.xyz/...",
+    "description": "Optional description",
+    "externalLinks": {
+      "website": "https://...",
+      "twitter": "https://...",
+      "telegram": "https://..."
+    }
+  },
+  "launchType": "project",
+  "launch": {
+    "launchpool": {
+      "tokenAllocation": 500000000,
+      "depositStartTime": "2026-03-01T00:00:00Z",
+      "raiseGoal": 200,
+      "raydiumLiquidityBps": 5000,
+      "fundsRecipient": "<ADDRESS>"
+    },
+    "lockedAllocations": []
+  },
+  "network": "solana-mainnet",
+  "quoteMint": "SOL"
+}
+```
+
+**Output**: Launch ID, launch link, token ID, mint address.
+
+---
 
 ### `mplx genesis create`
 
@@ -152,7 +262,52 @@ All take `<GENESIS>` as positional argument:
 
 ## Workflows
 
-### Launch Pool (Fair Launch)
+### Launch via API (Recommended)
+
+```bash
+# Simple launch — one command does everything
+mplx genesis launch create \
+  --name "My Token" \
+  --symbol "MTK" \
+  --image "https://gateway.irys.xyz/abc123" \
+  --tokenAllocation 500000000 \
+  --depositStartTime "2026-03-01T00:00:00Z" \
+  --raiseGoal 200 \
+  --raydiumLiquidityBps 5000 \
+  --fundsRecipient <WALLET_ADDRESS>
+
+# With optional metadata
+mplx genesis launch create \
+  --name "My Token" \
+  --symbol "MTK" \
+  --image "https://gateway.irys.xyz/abc123" \
+  --tokenAllocation 500000000 \
+  --depositStartTime "2026-03-01T00:00:00Z" \
+  --raiseGoal 200 \
+  --raydiumLiquidityBps 5000 \
+  --fundsRecipient <WALLET_ADDRESS> \
+  --description "A revolutionary token" \
+  --website "https://mytoken.com" \
+  --twitter "https://twitter.com/mytoken" \
+  --telegram "https://t.me/mytoken"
+
+# With team vesting (locked allocations)
+mplx genesis launch create \
+  --name "My Token" \
+  --symbol "MTK" \
+  --image "https://gateway.irys.xyz/abc123" \
+  --tokenAllocation 500000000 \
+  --depositStartTime "2026-03-01T00:00:00Z" \
+  --raiseGoal 200 \
+  --raydiumLiquidityBps 5000 \
+  --fundsRecipient <WALLET_ADDRESS> \
+  --lockedAllocations allocations.json
+
+# Register an existing genesis account
+mplx genesis launch register <GENESIS_ACCOUNT> --launchConfig launch.json
+```
+
+### Launch Pool (Fair Launch — Low-Level)
 
 ```bash
 # 1. Create Genesis account
@@ -214,6 +369,15 @@ mplx genesis claim-unlocked <GENESIS>
 ---
 
 ## Important Notes
+
+### Launch API
+
+- `--raiseGoal` and token amounts are in **whole units** (e.g., `200` = 200 SOL), NOT base units.
+- `--depositStartTime` accepts **ISO date strings** or **unix timestamps**.
+- Deposit window is always **48 hours**.
+- Default deposit/withdraw fees: 200 bps (2%). See: https://developers.metaplex.com/protocol-fees
+
+### Low-Level Commands
 
 - All timestamps are **Unix seconds** (not milliseconds).
 - All amounts are in **base units** (with 9 decimals: 1 SOL = 1000000000).

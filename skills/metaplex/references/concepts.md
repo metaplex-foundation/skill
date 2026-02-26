@@ -222,11 +222,24 @@ Initialize → Add Buckets → Finalize (irreversible) → Deposit Period → Tr
 ```
 
 - **Initialize**: Creates a Genesis account + the token mint. All configuration happens here (name, symbol, supply, quote mint).
-- **Add Buckets**: Configure how tokens are distributed (LaunchPool for public, Unlocked for team/treasury).
-- **Finalize**: Locks the configuration. No more buckets can be added. **Irreversible.**
+- **Add Buckets**: Configure how tokens are distributed. See Bucket Types below.
+- **Finalize**: Locks the configuration. No more buckets can be added. **Irreversible.** Requires 100% of supply allocated to buckets.
 - **Deposit Period**: Users deposit SOL (quote token) into the LaunchPool bucket.
-- **Transition**: After deposit period ends, executes end behaviors (e.g., routes deposited SOL to outflow buckets).
+- **Transition**: After deposit period ends, executes end behaviors (e.g., routes deposited SOL to outflow buckets). Call `triggerBehaviorsV2`.
+- **Graduation**: LP tokens are graduated to Raydium. Call `graduateToRaydiumCpmmV2`.
 - **Claim Period**: Users claim tokens proportional to their deposit.
+
+### Bucket Types
+
+| Bucket | Purpose | User Interaction |
+|--------|---------|-----------------|
+| **LaunchPool** | Pro-rata allocation — users deposit SOL, receive tokens proportionally | deposit / withdraw / claim |
+| **Presale** | Fixed-price allocation (price = quoteCap / allocation), first-come-first-served | deposit / withdraw / claim |
+| **BondingCurve** | Constant-product AMM with virtual reserves | swap (buy/sell) |
+| **Unlocked** | Team/treasury — tokens go directly to a recipient, no deposits | claim only |
+| **Vault** | Holds SOL received from end behaviors | deposit / withdraw |
+| **RaydiumCpmm** | Raydium LP graduation — receives tokens + SOL, creates LP | graduation |
+| **Streamflow** | Vesting via Streamflow — tokens unlock over time | lock / claim via Streamflow |
 
 ### Fees
 
@@ -234,18 +247,15 @@ Genesis charges protocol-level fees on deposits and withdrawals. For current fee
 
 ### Condition Objects
 
-Buckets use condition objects for timing (deposit start/end, claim start/end). The format:
+Buckets use condition objects for timing (deposit start/end, claim start/end). Use the helper:
 
 ```typescript
-{
-  __kind: 'TimeAbsolute',           // Trigger type — absolute Unix timestamp
-  padding: Array(47).fill(0),       // Reserved bytes for future use (required by on-chain layout)
-  time: BigInt(unixTimestamp),       // When to trigger
-  triggeredTimestamp: NOT_TRIGGERED_TIMESTAMP,  // Sentinel value — program sets this when triggered
-}
+import { createTimeAbsoluteCondition } from '@metaplex-foundation/genesis';
+
+const condition = createTimeAbsoluteCondition(BigInt(unixTimestamp));
 ```
 
-The `padding` field is required by the on-chain account layout for forward compatibility. Always use `Array(47).fill(0)`. The `NOT_TRIGGERED_TIMESTAMP` constant is exported from the Genesis package.
+This handles the required padding and triggered timestamp fields automatically. Other condition types: `createTimeRelativeCondition()` (relative to another bucket), `createNeverCondition()` (permanently locked).
 
 ### End Behaviors
 
@@ -263,6 +273,44 @@ After a LaunchPool's deposit period ends, `endBehaviors` define what happens to 
 
 Available end behavior types:
 - `SendQuoteTokenPercentage` — Route a percentage of collected SOL to another bucket
+- `BaseTokenRollover` — Move a percentage of unsold base tokens to another bucket
+- `SendStartPrice` — Send the starting price (SOL) to a destination bucket
+- `ReallocateBaseTokensOnFailure` — On minimum threshold failure, move tokens to another bucket
+
+### Claim Schedules
+
+Buckets can have claim schedules that control when users can claim tokens:
+
+```typescript
+import { createClaimSchedule, createNeverClaimSchedule } from '@metaplex-foundation/genesis';
+
+// Linear vesting with cliff
+const schedule = createClaimSchedule({
+  startTime: BigInt(startTimestamp),  // When linear vesting begins
+  endTime: BigInt(endTimestamp),      // When vesting completes
+  cliffTime: BigInt(cliffTimestamp),  // Cliff date
+  cliffAmountBps: 1000,              // 10% unlocked at cliff
+  period: 2_592_000n,                // Release every 30 days
+});
+
+// Permanently locked (e.g., LP tokens that should never vest)
+const locked = createNeverClaimSchedule();
+```
+
+### Allowlists
+
+Presale and launch pool buckets support merkle-tree allowlists to restrict who can deposit:
+
+```typescript
+import { prepareAllowlist } from '@metaplex-foundation/genesis';
+
+const { root, proofs, treeHeight } = prepareAllowlist([
+  { address: publicKey('Addr111...') },
+  { address: publicKey('Addr222...') },
+]);
+```
+
+Pass `allowlist` config when adding a bucket, and provide merkle proofs as remaining accounts when depositing.
 
 ### Token Supply Decimals
 
