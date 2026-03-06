@@ -11,12 +11,14 @@ Commands for creating and managing token launches (TGEs) via the `mplx` CLI.
 ## Lifecycle
 
 **Low-level** (manual on-chain setup):
-```
-create → bucket add-* → finalize → deposit → transition → claim → revoke
+
+```text
+create → bucket add-* → finalize → deposit → transition → graduation → claim → revoke
 ```
 
 **Launch API** (recommended — handles everything in one command):
-```
+
+```text
 launch create  →  deposit window (project: 48h, memecoin: 1h)  →  Raydium graduation  →  claim
 ```
 
@@ -351,13 +353,14 @@ mplx genesis create --name "My Token" --symbol "MTK" --totalSupply 1000000000000
 
 # 2. Add unlocked bucket as end-behavior destination (allocation for remaining supply)
 mplx genesis bucket add-unlocked <GENESIS> \
-  --recipient <TEAM_WALLET> --claimStart <TS> --allocation 200000000000000
+  --recipient <TEAM_WALLET> --claimStart <CLAIM_START_TS> --allocation 200000000000000
 
 # 3. Add launch pool bucket with endBehavior (required for finalize)
-#    Note: claimStart must be strictly AFTER depositEnd
+#    Note: DEPOSIT_END_TS < CLAIM_START_TS < CLAIM_END_TS (strict ordering required)
 mplx genesis bucket add-launch-pool <GENESIS> \
   --allocation 800000000000000 --bucketIndex 1 \
-  --depositStart <TS> --depositEnd <TS> --claimStart <TS+1> --claimEnd <TS> \
+  --depositStart <DEPOSIT_START_TS> --depositEnd <DEPOSIT_END_TS> \
+  --claimStart <CLAIM_START_TS> --claimEnd <CLAIM_END_TS> \
   --endBehavior "<UNLOCKED_BUCKET_ADDR>:10000"
 
 # 4. Finalize (irreversible — requires 100% supply allocated)

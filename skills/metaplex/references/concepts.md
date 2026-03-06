@@ -224,8 +224,8 @@ Both types have a total supply of 1 billion tokens and graduate to Raydium liqui
 
 ### Lifecycle
 
-```
-Initialize → Add Buckets → Finalize (irreversible) → Deposit Period → Transition → Claim Period
+```text
+Initialize → Add Buckets → Finalize (irreversible) → Deposit Period → Transition → Graduation → Claim Period
 ```
 
 - **Initialize**: Creates a Genesis account + the token mint. All configuration happens here (name, symbol, supply, quote mint).

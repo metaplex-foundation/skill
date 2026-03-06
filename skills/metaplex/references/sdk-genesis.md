@@ -40,18 +40,21 @@ npm install @metaplex-foundation/genesis @metaplex-foundation/umi-bundle-default
 ## Launch Lifecycle
 
 **Launch API** (recommended):
-```
+
+```text
 createAndRegisterLaunch()  →  deposit window (project: 48h, memecoin: 1h)  →  Raydium graduation  →  claim
 ```
 
 **Low-level SDK**:
-```
+
+```text
 1. Initialize Genesis Account → Creates token + coordination account
 2. Add Buckets → Configure distribution (LaunchPool, Unlocked, etc.)
 3. Finalize → Lock configuration, launch goes live
 4. Active Period → Users deposit SOL
 5. Transition → Execute end behaviors (send SOL to outflow buckets)
-6. Claim Period → Users claim tokens proportionally
+6. Graduation → LP tokens graduated to Raydium
+7. Claim Period → Users claim tokens proportionally
 ```
 
 ---
@@ -286,9 +289,11 @@ The following sections cover direct on-chain instructions for full control over 
 ```typescript
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { genesis } from '@metaplex-foundation/genesis';
+import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
 
 const umi = createUmi('https://api.devnet.solana.com')
-  .use(genesis());
+  .use(genesis())
+  .use(mplTokenMetadata());
 ```
 
 ---
@@ -569,6 +574,21 @@ console.log('User deposit:', deposit.amountQuoteToken);
 ## Add Presale Bucket
 
 Fixed-price allocation: price = quoteCap / allocation. First-come-first-served.
+
+**Setup for the following examples** (Presale, Bonding Curve, Streamflow):
+```typescript
+const now = BigInt(Math.floor(Date.now() / 1000));
+const depositStart = now;
+const depositEnd = now + 86400n;           // 1 day
+const claimStart = now + 86400n * 3n;      // 3 days
+const claimEnd = now + 86400n * 7n;        // 7 days
+const startTime = now;
+const endTime = now + 86400n;
+const teamWallet = publicKey('Team111...');  // replace with actual address
+const lockStart = now;
+const lockEnd = now + 86400n * 30n;        // 30 days
+const cliffDuration = 86400n * 7n;         // 7 days
+```
 
 ```typescript
 import {
