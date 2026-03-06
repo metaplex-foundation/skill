@@ -13,9 +13,11 @@ npm install @metaplex-foundation/genesis @metaplex-foundation/umi-bundle-default
 ## Before Starting — Gather from User
 
 **For Launch API** (recommended):
-1. **Token details**: name (1-32 chars), symbol (1-10 chars), image (Irys URL), description (optional, max 250 chars)
-2. **Launch pool**: token allocation (portion of 1B), deposit start time, raise goal, Raydium liquidity %, funds recipient
-3. **Optional**: locked allocations (team vesting), external links (website, twitter, telegram), quote mint (SOL/USDC)
+1. **Launch type**: `'project'` (default, 48h deposit, configurable) or `'memecoin'` (1h deposit, simplified)
+2. **Token details**: name (1-32 chars), symbol (1-10 chars), image (Irys URL), description (optional, max 250 chars)
+3. **For project launches**: token allocation (portion of 1B), deposit start time, raise goal, Raydium liquidity %, funds recipient
+4. **For memecoin launches**: only deposit start time needed (hardcoded fund flows)
+5. **Optional**: locked allocations (team vesting, project only), external links (website, twitter, telegram), quote mint (SOL/USDC)
 
 **For low-level SDK**:
 1. **Token details**: name, symbol, description, image/metadata URI
@@ -39,7 +41,7 @@ npm install @metaplex-foundation/genesis @metaplex-foundation/umi-bundle-default
 
 **Launch API** (recommended):
 ```
-createAndRegisterLaunch()  →  deposit window (48h)  →  Raydium graduation  →  claim
+createAndRegisterLaunch()  →  deposit window (project: 48h, memecoin: 1h)  →  Raydium graduation  →  claim
 ```
 
 **Low-level SDK**:
@@ -107,6 +109,36 @@ console.log('Mint:', result.mintAddress);
 console.log('Launch page:', result.launch.link);
 console.log('Signatures:', result.signatures);
 ```
+
+### Memecoin Launch
+
+Simplified launch with 1-hour deposit window and hardcoded fund flows. Only requires token metadata and deposit start time.
+
+```typescript
+import { createAndRegisterLaunch, CreateMemecoinLaunchInput } from '@metaplex-foundation/genesis';
+
+const input: CreateMemecoinLaunchInput = {
+  wallet: umi.identity.publicKey,
+  token: {
+    name: 'My Meme',
+    symbol: 'MEME',
+    image: 'https://gateway.irys.xyz/...',
+    description: 'A fun memecoin',              // optional
+    externalLinks: { twitter: '@mymeme' },       // optional
+  },
+  launchType: 'memecoin',
+  launch: {
+    depositStartTime: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now
+  },
+  // optional:
+  quoteMint: 'SOL',
+  network: 'solana-mainnet',
+};
+
+const result = await createAndRegisterLaunch(umi, { baseUrl: 'https://api.metaplex.com' }, input);
+```
+
+**Memecoin vs Project**: Memecoin launches cannot include `launchpool` or `lockedAllocations` config — the API configures these automatically.
 
 ### With Locked Allocations (Team Vesting via Streamflow)
 
@@ -232,13 +264,16 @@ try {
 
 ### Launch API Key Points
 
-- **Total supply** is always 1 billion tokens; `tokenAllocation` is how many go to the launch pool
-- **Deposit window** is always 48 hours from `depositStartTime`
+- **Two launch types**: `'project'` (default, 48h deposit, configurable) and `'memecoin'` (1h deposit, simplified)
+- **Total supply** is always 1 billion tokens; `tokenAllocation` is how many go to the launch pool (project only)
+- **Deposit window**: project = 48 hours, memecoin = 1 hour from `depositStartTime`
+- **Memecoin launches** only need `depositStartTime` in the `launch` config — fund flows are hardcoded by the API
+- **Memecoin launches cannot** use `launchpool` or `lockedAllocations` config
 - **raiseGoal** and amounts are in **whole units** (e.g., `200` = 200 SOL), NOT base units
 - **Image** must be hosted on Irys (`https://gateway.irys.xyz/...`)
-- Remaining tokens (1B minus launchpool minus locked) go to the creator automatically
+- Remaining tokens (1B minus launchpool minus locked) go to the creator automatically (project only)
 - **registerLaunch** is idempotent — safe to call again if it fails
-- Fund routing is automatic: `raydiumLiquidityBps` goes to Raydium LP, rest goes to `fundsRecipient`
+- Fund routing is automatic: `raydiumLiquidityBps` goes to Raydium LP, rest goes to `fundsRecipient` (project only)
 
 ---
 
@@ -297,9 +332,15 @@ const ONE_BILLION = 1_000_000_000_000_000_000n; // 1,000,000,000 tokens
 
 ## Add Launch Pool Bucket
 
+Uses a 3-transaction flow to stay within tx size limits:
+1. `addLaunchPoolBucketV2Base` — create bucket with core fields
+2. `addLaunchPoolBucketV2Extensions` — add optional extensions (penalties, allowlist, claim schedule, etc.)
+3. `setLaunchPoolBucketV2Behaviors` — configure end behaviors
+
 ```typescript
 import {
-  addLaunchPoolBucketV2,
+  addLaunchPoolBucketV2Base,
+  addLaunchPoolBucketV2Extensions,
   setLaunchPoolBucketV2Behaviors,
   findLaunchPoolBucketV2Pda,
   findUnlockedBucketV2Pda,
@@ -321,19 +362,34 @@ const depositEnd = now + 86400n * 3n;  // 3 days
 const claimStart = depositEnd + 1n;
 const claimEnd = claimStart + 86400n * 7n;  // 7 days
 
-// Step 1: Create bucket (without end behaviors to stay within tx size limit)
-await addLaunchPoolBucketV2(umi, {
+// Step 1: Create bucket with base fields
+await addLaunchPoolBucketV2Base(umi, {
   genesisAccount,
   baseMint: baseMint.publicKey,
+  quoteMint: WSOL_MINT,
   baseTokenAllocation: 600_000_000_000_000n,  // 60% of supply
   depositStartCondition: createTimeAbsoluteCondition(now),
   depositEndCondition: createTimeAbsoluteCondition(depositEnd),
   claimStartCondition: createTimeAbsoluteCondition(claimStart),
   claimEndCondition: createTimeAbsoluteCondition(claimEnd),
-  endBehaviors: [],
 }).sendAndConfirm(umi);
 
-// Step 2: Set end behaviors in a separate transaction
+// Step 2 (optional): Add extensions (penalties, allowlist, deposit limits, etc.)
+await addLaunchPoolBucketV2Extensions(umi, {
+  authority: umi.identity,
+  bucket: launchPoolBucket,
+  genesisAccount,
+  payer: umi.payer,
+  padding: Array(3).fill(0),
+  extensions: [
+    // Example: add a deposit limit
+    { __kind: 'DepositLimit', depositLimit: { limit: 100_000_000_000n } },
+    // Example: add a claim schedule with cliff
+    // { __kind: 'ClaimSchedule', claimSchedule: createClaimSchedule({ ... }) },
+  ],
+}).sendAndConfirm(umi);
+
+// Step 3: Set end behaviors
 await setLaunchPoolBucketV2Behaviors(umi, {
   genesisAccount,
   bucket: launchPoolBucket,
@@ -349,6 +405,14 @@ await setLaunchPoolBucketV2Behaviors(umi, {
   ],
 }).sendAndConfirm(umi);
 ```
+
+**Available extensions** for `addLaunchPoolBucketV2Extensions`:
+- `DepositPenalty` / `WithdrawPenalty` / `BonusSchedule` — `LinearBpsScheduleV2Args` with `duration`, `interceptBps`, `maxBps`, `slopeBps`, `startCondition`
+- `DepositLimit` — `{ limit: bigint }`
+- `MinimumDepositAmount` — `{ amount: bigint }`
+- `MinimumQuoteTokenThreshold` — `{ amount: bigint }`
+- `Allowlist` — `{ merkleTreeHeight, merkleRoot, endTime, quoteCap }`
+- `ClaimSchedule` — `createClaimSchedule({ startTime, endTime, period, cliffTime?, cliffAmountBps? })`
 
 ---
 

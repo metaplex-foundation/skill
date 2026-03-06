@@ -215,6 +215,13 @@ Collection Account
 
 ## Genesis Concepts
 
+### Launch Types
+
+- **Project**: Full control — configurable allocations, 48-hour deposit window, team vesting support, custom Raydium liquidity split.
+- **Memecoin**: Simplified — 1-hour deposit window, hardcoded fund flows. Only requires token metadata and deposit start time.
+
+Both types have a total supply of 1 billion tokens and graduate to Raydium liquidity.
+
 ### Lifecycle
 
 ```

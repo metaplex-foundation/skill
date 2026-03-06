@@ -17,7 +17,7 @@ create → bucket add-* → finalize → deposit → transition → claim → re
 
 **Launch API** (recommended — handles everything in one command):
 ```
-launch create  →  deposit window opens  →  Raydium graduation  →  claim
+launch create  →  deposit window (project: 48h, memecoin: 1h)  →  Raydium graduation  →  claim
 ```
 
 ---
@@ -26,11 +26,17 @@ launch create  →  deposit window opens  →  Raydium graduation  →  claim
 
 ### Launch API (Recommended)
 
+Two launch types: **project** (default, fully configurable, 48h deposit) and **memecoin** (simplified, 1h deposit).
+
 ```bash
-# Create and register a launch (all-in-one)
+# Project launch (all-in-one)
 mplx genesis launch create --name <NAME> --symbol <SYMBOL> \
   --image <IRYS_URL> --tokenAllocation <AMOUNT> --depositStartTime <ISO_DATE_OR_UNIX_TS> \
   --raiseGoal <WHOLE_UNITS> --raydiumLiquidityBps <BPS> --fundsRecipient <ADDR>
+
+# Memecoin launch (simplified — only requires name, symbol, image, depositStartTime)
+mplx genesis launch create --launchType memecoin --name <NAME> --symbol <SYMBOL> \
+  --image <IRYS_URL> --depositStartTime <ISO_DATE_OR_UNIX_TS>
 
 # Register an existing genesis account on the platform
 mplx genesis launch register <GENESIS_ACCOUNT> --launchConfig <PATH_TO_JSON>
@@ -84,21 +90,26 @@ mplx genesis revoke <GENESIS> --revokeMint --revokeFreeze
 
 All-in-one command: creates the token, sets up the genesis account with a launch pool, optionally adds locked (vesting) allocations, signs and sends transactions, then registers the launch on the Metaplex platform. Returns a public launch page link.
 
+**Launch types:**
+- **`project`** (default): Total supply 1B, 48-hour deposit period, fully configurable allocations. Requires `--tokenAllocation`, `--raiseGoal`, `--raydiumLiquidityBps`, `--fundsRecipient`.
+- **`memecoin`**: Total supply 1B, 1-hour deposit period, hardcoded fund flows. Only needs `--name`, `--symbol`, `--image`, `--depositStartTime`. Cannot use project-only flags.
+
 | Flag | Short | Required | Default | Description |
 |------|-------|----------|---------|-------------|
+| `--launchType` | - | No | `project` | `project` or `memecoin` |
 | `--name` | `-n` | Yes | - | Token name (1-32 characters) |
 | `--symbol` | `-s` | Yes | - | Token symbol (1-10 characters) |
 | `--image` | - | Yes | - | Token image URL (must be `https://gateway.irys.xyz/...`) |
-| `--tokenAllocation` | - | Yes | - | Launch pool token allocation (portion of 1B total supply) |
-| `--depositStartTime` | - | Yes | - | ISO date string or unix timestamp; deposit lasts 48 hours |
-| `--raiseGoal` | - | Yes | - | Minimum quote tokens to raise, in **whole units** (e.g., `200` = 200 SOL) |
-| `--raydiumLiquidityBps` | - | Yes | - | Basis points for Raydium LP (2000-10000, i.e., 20%-100%) |
-| `--fundsRecipient` | - | Yes | - | Wallet receiving the unlocked portion of raised funds |
+| `--depositStartTime` | - | Yes | - | ISO date string or unix timestamp. Project: 48h deposit. Memecoin: 1h deposit. |
+| `--tokenAllocation` | - | Project only | - | Launch pool token allocation (portion of 1B total supply) |
+| `--raiseGoal` | - | Project only | - | Minimum quote tokens to raise, in **whole units** (e.g., `200` = 200 SOL) |
+| `--raydiumLiquidityBps` | - | Project only | - | Basis points for Raydium LP (2000-10000, i.e., 20%-100%) |
+| `--fundsRecipient` | - | Project only | - | Wallet receiving the unlocked portion of raised funds |
 | `--description` | - | No | - | Token description (max 250 characters) |
 | `--website` | - | No | - | Project website URL |
 | `--twitter` | - | No | - | Project Twitter URL |
 | `--telegram` | - | No | - | Project Telegram URL |
-| `--lockedAllocations` | - | No | - | Path to JSON file with locked allocation configs (Streamflow vesting) |
+| `--lockedAllocations` | - | No (project only) | - | Path to JSON file with locked allocation configs (Streamflow vesting) |
 | `--quoteMint` | - | No | `SOL` | `SOL`, `USDC`, or a mint address |
 | `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
 | `--apiUrl` | - | No | `https://api.metaplex.com` | Genesis API base URL |
@@ -135,7 +146,7 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
 | `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
 | `--apiUrl` | - | No | `https://api.metaplex.com` | Genesis API base URL |
 
-**Launch Config JSON** (`--launchConfig` file format):
+**Launch Config JSON** — project example (`--launchConfig` file format):
 ```json
 {
   "wallet": "<ADDRESS>",
@@ -166,6 +177,24 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
 }
 ```
 
+**Launch Config JSON** — memecoin example:
+```json
+{
+  "wallet": "<ADDRESS>",
+  "token": {
+    "name": "My Meme",
+    "symbol": "MEME",
+    "image": "https://gateway.irys.xyz/..."
+  },
+  "launchType": "memecoin",
+  "launch": {
+    "depositStartTime": "2026-03-01T00:00:00Z"
+  },
+  "network": "solana-mainnet",
+  "quoteMint": "SOL"
+}
+```
+
 **Output**: Launch ID, launch link, token ID, mint address.
 
 ---
@@ -188,7 +217,7 @@ All amounts are in **base units**. With 9 decimals: 1M tokens = `100000000000000
 
 ### `mplx genesis bucket add-launch-pool <GENESIS>`
 
-Pro-rata allocation: users deposit SOL, receive tokens proportionally.
+Pro-rata allocation: users deposit SOL, receive tokens proportionally. Internally sends up to 3 transactions: (1) base bucket creation, (2) optional extensions, (3) end behaviors.
 
 | Flag | Short | Required | Default | Description |
 |------|-------|----------|---------|-------------|
@@ -265,7 +294,14 @@ All take `<GENESIS>` as positional argument:
 ### Launch via API (Recommended)
 
 ```bash
-# Simple launch — one command does everything
+# Memecoin launch — simplified, 1-hour deposit window, hardcoded fund flows
+mplx genesis launch create --launchType memecoin \
+  --name "My Meme" \
+  --symbol "MEME" \
+  --image "https://gateway.irys.xyz/abc123" \
+  --depositStartTime "2026-03-01T00:00:00Z"
+
+# Project launch — configurable allocations, 48-hour deposit window
 mplx genesis launch create \
   --name "My Token" \
   --symbol "MTK" \
@@ -276,7 +312,7 @@ mplx genesis launch create \
   --raydiumLiquidityBps 5000 \
   --fundsRecipient <WALLET_ADDRESS>
 
-# With optional metadata
+# Project launch with optional metadata
 mplx genesis launch create \
   --name "My Token" \
   --symbol "MTK" \
@@ -291,7 +327,7 @@ mplx genesis launch create \
   --twitter "https://twitter.com/mytoken" \
   --telegram "https://t.me/mytoken"
 
-# With team vesting (locked allocations)
+# Project launch with team vesting (locked allocations)
 mplx genesis launch create \
   --name "My Token" \
   --symbol "MTK" \
@@ -372,9 +408,10 @@ mplx genesis claim-unlocked <GENESIS>
 
 ### Launch API
 
+- Two launch types: **project** (default, 48h deposit, configurable) and **memecoin** (1h deposit, simplified).
+- Memecoin launches **cannot** use project-only flags (`--tokenAllocation`, `--raiseGoal`, `--raydiumLiquidityBps`, `--fundsRecipient`, `--lockedAllocations`).
 - `--raiseGoal` and token amounts are in **whole units** (e.g., `200` = 200 SOL), NOT base units.
 - `--depositStartTime` accepts **ISO date strings** or **unix timestamps**.
-- Deposit window is always **48 hours**.
 - Default deposit/withdraw fees: 200 bps (2%). See: https://developers.metaplex.com/protocol-fees
 
 ### Low-Level Commands
