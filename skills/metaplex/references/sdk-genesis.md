@@ -325,7 +325,7 @@ Genesis charges protocol-level fees on deposits and withdrawals. For current rat
 ## Program ID
 
 ```
-Genesis: GENSkbJAfXcp9nvQm9eBPMg4MUefawD4oBNK7P8aLvEC
+Genesis: GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
 ```
 
 ## Documentation
