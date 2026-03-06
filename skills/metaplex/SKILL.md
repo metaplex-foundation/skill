@@ -101,9 +101,13 @@ Always use **Token Metadata**. Read `./references/cli.md` (toolbox section) for 
 
 Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy-machine.md`.
 
-### Token Launches (Token Generation Event / Fair Launch)
+### Token Launches (Token Generation Event / Fair Launch / Memecoin)
 
-Use **Genesis**. Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
+Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegisterLaunch`) is recommended — it handles everything in one step. Two launch types:
+- **`project`** (default): Configurable allocations, 48h deposit, team vesting support
+- **`memecoin`**: Simplified, 1h deposit, hardcoded fund flows — only needs name, symbol, image, and deposit start time
+
+Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
 
 ## External Resources
 
