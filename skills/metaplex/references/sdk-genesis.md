@@ -157,7 +157,7 @@ const input: CreateLaunchInput = {
   launch: {
     launchpool: {
       tokenAllocation: 500_000_000,
-      depositStartTime: new Date('2026-03-01T00:00:00Z'),
+      depositStartTime: new Date(Date.now() + 48 * 60 * 60 * 1000),
       raiseGoal: 200,
       raydiumLiquidityBps: 5000,
       fundsRecipient: umi.identity.publicKey,

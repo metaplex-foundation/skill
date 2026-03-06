@@ -167,7 +167,7 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
   "launch": {
     "launchpool": {
       "tokenAllocation": 500000000,
-      "depositStartTime": "2026-03-01T00:00:00Z",
+      "depositStartTime": "<FUTURE_ISO_DATE>",
       "raiseGoal": 200,
       "raydiumLiquidityBps": 5000,
       "fundsRecipient": "<ADDRESS>"
@@ -190,7 +190,7 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
   },
   "launchType": "memecoin",
   "launch": {
-    "depositStartTime": "2026-03-01T00:00:00Z"
+    "depositStartTime": "<FUTURE_ISO_DATE>"
   },
   "network": "solana-mainnet",
   "quoteMint": "SOL"
@@ -301,7 +301,7 @@ mplx genesis launch create --launchType memecoin \
   --name "My Meme" \
   --symbol "MEME" \
   --image "https://gateway.irys.xyz/abc123" \
-  --depositStartTime "2026-03-01T00:00:00Z"
+  --depositStartTime "<FUTURE_ISO_DATE>"
 
 # Project launch — configurable allocations, 48-hour deposit window
 mplx genesis launch create \
@@ -309,7 +309,7 @@ mplx genesis launch create \
   --symbol "MTK" \
   --image "https://gateway.irys.xyz/abc123" \
   --tokenAllocation 500000000 \
-  --depositStartTime "2026-03-01T00:00:00Z" \
+  --depositStartTime "<FUTURE_ISO_DATE>" \
   --raiseGoal 200 \
   --raydiumLiquidityBps 5000 \
   --fundsRecipient <WALLET_ADDRESS>
@@ -320,7 +320,7 @@ mplx genesis launch create \
   --symbol "MTK" \
   --image "https://gateway.irys.xyz/abc123" \
   --tokenAllocation 500000000 \
-  --depositStartTime "2026-03-01T00:00:00Z" \
+  --depositStartTime "<FUTURE_ISO_DATE>" \
   --raiseGoal 200 \
   --raydiumLiquidityBps 5000 \
   --fundsRecipient <WALLET_ADDRESS> \
@@ -335,7 +335,7 @@ mplx genesis launch create \
   --symbol "MTK" \
   --image "https://gateway.irys.xyz/abc123" \
   --tokenAllocation 500000000 \
-  --depositStartTime "2026-03-01T00:00:00Z" \
+  --depositStartTime "<FUTURE_ISO_DATE>" \
   --raiseGoal 200 \
   --raydiumLiquidityBps 5000 \
   --fundsRecipient <WALLET_ADDRESS> \
