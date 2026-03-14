@@ -13,7 +13,7 @@ Commands for creating and managing Core NFTs and collections via the `mplx` CLI.
 mplx core asset create --name <NAME> --uri <URI>
 mplx core asset create --name <NAME> --uri <URI> --owner <ADDR>             # Mint to a different wallet — --owner works on all asset create variants
 mplx core asset create --name <NAME> --uri <URI> --collection <ADDR>
-mplx core asset create --files --image <PATH> --json <PATH>                 # From local files (uploads automatically) — may error on JSON upload; use manual upload workflow as fallback
+mplx core asset create --files --image <PATH> --json <PATH>                 # From local files (uploads automatically)
 mplx core asset fetch <ADDR>
 mplx core asset update <ASSETID> --name <NAME>
 mplx core asset update <ASSETID> --uri <URI>
@@ -85,7 +85,8 @@ Note: `basisPoints: 500` = 5%. Creator percentages must total 100.
 ### Single NFT/Collection
 
 ```bash
-# Option A: Local files (one step)
+# Option A: Local files (one step) — recommended
+# Create metadata.json first — follow the NFT schema in metadata-json.md
 mplx core asset create --files --image ./image.png --json ./metadata.json
 
 # Option B: Manual upload workflow
@@ -93,21 +94,7 @@ mplx core asset create --files --image ./image.png --json ./metadata.json
 mplx toolbox storage upload ./image.png
 # Returns: https://gateway.irys.xyz/<IMAGE_HASH>
 
-# 2. Create metadata JSON (use full NFT standard)
-echo '{
-  "name": "My NFT",
-  "description": "Description here",
-  "image": "https://gateway.irys.xyz/<IMAGE_HASH>",
-  "external_url": "https://yourproject.com",
-  "attributes": [
-    {"trait_type": "Background", "value": "Blue"},
-    {"trait_type": "Rarity", "value": "Common"}
-  ],
-  "properties": {
-    "files": [{"uri": "https://gateway.irys.xyz/<IMAGE_HASH>", "type": "image/png"}],
-    "category": "image"
-  }
-}' > metadata.json
+# 2. Create metadata.json — follow the NFT schema in metadata-json.md, set image URI to above
 
 # 3. Upload metadata
 mplx toolbox storage upload ./metadata.json
@@ -123,11 +110,8 @@ mplx core asset create --name "My NFT" --uri "https://gateway.irys.xyz/<META_HAS
 # 1. Upload all images at once
 mplx toolbox storage upload ./images --directory
 
-# 2. Create all metadata files (ONE command) — each file must follow the full NFT JSON standard
-# (name, description, image, external_url, attributes, properties.files, properties.category)
-echo '{"name":"NFT #1","description":"...","image":"<URI_1>","external_url":"https://yourproject.com","attributes":[{"trait_type":"Background","value":"Blue"}],"properties":{"files":[{"uri":"<URI_1>","type":"image/png"}],"category":"image"}}' > meta/1.json && \
-echo '{"name":"NFT #2","description":"...","image":"<URI_2>","external_url":"https://yourproject.com","attributes":[{"trait_type":"Background","value":"Red"}],"properties":{"files":[{"uri":"<URI_2>","type":"image/png"}],"category":"image"}}' > meta/2.json && \
-echo '{"name":"NFT #3","description":"...","image":"<URI_3>","external_url":"https://yourproject.com","attributes":[{"trait_type":"Background","value":"Green"}],"properties":{"files":[{"uri":"<URI_3>","type":"image/png"}],"category":"image"}}' > meta/3.json
+# 2. Create metadata files — one per NFT, each following the NFT schema in metadata-json.md
+# Set each "image" + properties.files[0].uri to the corresponding uploaded image URI
 
 # 3. Upload all metadata at once
 mplx toolbox storage upload ./meta --directory

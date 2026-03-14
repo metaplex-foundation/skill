@@ -155,10 +155,8 @@ mplx toolbox storage withdraw 0.05
 # Setup checks - ONE command
 mplx config get rpcUrl && mplx config get keypair && mplx toolbox sol balance
 
-# File creation - ONE command (each file must use the full NFT JSON standard — see concepts.md)
-echo '{"name":"NFT #1","description":"...","image":"<URI_1>","external_url":"https://yourproject.com","attributes":[{"trait_type":"Background","value":"Blue"}],"properties":{"files":[{"uri":"<URI_1>","type":"image/png"}],"category":"image"}}' > meta/1.json && \
-echo '{"name":"NFT #2","description":"...","image":"<URI_2>","external_url":"https://yourproject.com","attributes":[{"trait_type":"Background","value":"Red"}],"properties":{"files":[{"uri":"<URI_2>","type":"image/png"}],"category":"image"}}' > meta/2.json && \
-echo '{"name":"NFT #3","description":"...","image":"<URI_3>","external_url":"https://yourproject.com","attributes":[{"trait_type":"Background","value":"Green"}],"properties":{"files":[{"uri":"<URI_3>","type":"image/png"}],"category":"image"}}' > meta/3.json
+# File creation - ONE command (each file must follow the NFT JSON schema — see metadata-json.md)
+# Create one .json file per NFT with the correct schema before running uploads
 
 # Uploads - use --directory for folders
 mplx toolbox storage upload ./assets --directory

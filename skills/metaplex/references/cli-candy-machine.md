@@ -22,12 +22,35 @@ my-candy-machine/
 
 **Asset naming**: Files must be numbered starting from 0 (0.png, 0.json, 1.png, 1.json, etc.)
 
-**collection.json example**:
+**collection.json example** (follows the NFT metadata standard — see `metadata-json.md`; use relative image path, CM CLI replaces with uploaded URI):
 ```json
 {
   "name": "My Collection",
   "description": "A collection of NFTs",
-  "image": "collection.png"
+  "image": "collection.png",
+  "external_url": "https://yourproject.com",
+  "attributes": [],
+  "properties": {
+    "files": [{ "uri": "collection.png", "type": "image/png" }],
+    "category": "image"
+  }
+}
+```
+
+**Individual asset JSON example** (0.json, 1.json, etc. — same standard, see `metadata-json.md`):
+```json
+{
+  "name": "NFT #0",
+  "description": "Description here",
+  "image": "0.png",
+  "external_url": "https://yourproject.com",
+  "attributes": [
+    { "trait_type": "Background", "value": "Blue" }
+  ],
+  "properties": {
+    "files": [{ "uri": "0.png", "type": "image/png" }],
+    "category": "image"
+  }
 }
 ```
 

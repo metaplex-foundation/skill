@@ -36,18 +36,19 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | Task Type | Read This File |
 |-----------|----------------|
 | Any CLI operation (shared setup) | `./references/cli.md` |
-| CLI: Core NFTs/Collections | `./references/cli.md` + `./references/cli-core.md` |
-| CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` |
-| CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` |
-| CLI: Candy Machine (NFT drops) | `./references/cli.md` + `./references/cli-candy-machine.md` |
+| CLI: Core NFTs/Collections | `./references/cli.md` + `./references/cli-core.md` + `./references/metadata-json.md` |
+| CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` + `./references/metadata-json.md` |
+| CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` + `./references/metadata-json.md` |
+| CLI: Candy Machine (NFT drops) | `./references/cli.md` + `./references/cli-candy-machine.md` + `./references/metadata-json.md` |
 | CLI: Token launch (Genesis) | `./references/cli.md` + `./references/cli-genesis.md` |
 | CLI: Fungible tokens | `./references/cli.md` (toolbox section) |
 | SDK setup (Umi) | `./references/sdk-umi.md` |
-| SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` |
-| SDK: Token Metadata | `./references/sdk-umi.md` + `./references/sdk-token-metadata.md` |
-| SDK: Compressed NFTs (Bubblegum) | `./references/sdk-umi.md` + `./references/sdk-bubblegum.md` |
-| SDK: Token Metadata with Kit | `./references/sdk-token-metadata-kit.md` |
+| SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` + `./references/metadata-json.md` |
+| SDK: Token Metadata | `./references/sdk-umi.md` + `./references/sdk-token-metadata.md` + `./references/metadata-json.md` |
+| SDK: Compressed NFTs (Bubblegum) | `./references/sdk-umi.md` + `./references/sdk-bubblegum.md` + `./references/metadata-json.md` |
+| SDK: Token Metadata with Kit | `./references/sdk-token-metadata-kit.md` + `./references/metadata-json.md` |
 | SDK: Token launch (Genesis) | `./references/sdk-umi.md` + `./references/sdk-genesis.md` |
+| Off-chain metadata JSON format/schema (NFT or token) | `./references/metadata-json.md` |
 | Account structures, PDAs, concepts | `./references/concepts.md` |
 
 ## CLI Capabilities

@@ -9,6 +9,8 @@ Umi SDK operations for creating and managing Core NFTs and collections.
 
 > **Fetch-first pattern**: The helpers `update`, `burn`, `freezeAsset`, `thawAsset` require a **fetched** asset object (from `fetchAsset`), not just an address. This is because they automatically derive external plugin adapter accounts.
 
+> **Off-chain metadata**: Before creating an asset, upload a metadata JSON to Arweave/IPFS. See `./metadata-json.md` for the canonical schema. The resulting URI is passed as the `uri` parameter.
+
 ---
 
 ## Create Asset
