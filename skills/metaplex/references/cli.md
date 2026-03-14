@@ -96,6 +96,7 @@ Some commands can upload files and create assets in one step, as an alternative 
 
 ```bash
 # Core asset from local files (uploads image + JSON, then creates)
+# Prepare metadata.json first — follow the NFT schema in metadata-json.md
 mplx core asset create --files --image ./image.png --json ./metadata.json
 
 # TM NFT from local files (no --files flag needed for tm)
