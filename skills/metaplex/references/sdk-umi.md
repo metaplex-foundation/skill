@@ -127,12 +127,18 @@ const umi = createUmi(rpcEndpoint).use(irysUploader());
 // Upload file
 const [imageUri] = await umi.uploader.upload([imageFile]);
 
-// Upload JSON
+// Upload JSON — follow the full NFT metadata schema (see metadata-json.md)
 const metadataUri = await umi.uploader.uploadJson({
   name: 'My NFT',
-  description: 'Description',
+  description: 'Description',           // optional
   image: imageUri,
-  attributes: [{ trait_type: 'Background', value: 'Blue' }],
+  external_url: 'https://yourproject.com', // optional but recommended
+  animation_url: animationUri,           // optional, omit if not applicable
+  attributes: [{ trait_type: 'Background', value: 'Blue' }], // optional but recommended
+  properties: {
+    files: [{ uri: imageUri, type: 'image/png' }],
+    category: 'image',
+  },
 });
 ```
 

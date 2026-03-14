@@ -96,6 +96,7 @@ Some commands can upload files and create assets in one step, as an alternative 
 
 ```bash
 # Core asset from local files (uploads image + JSON, then creates)
+# Prepare metadata.json first — follow the NFT schema in metadata-json.md
 mplx core asset create --files --image ./image.png --json ./metadata.json
 
 # TM NFT from local files (no --files flag needed for tm)
@@ -155,10 +156,8 @@ mplx toolbox storage withdraw 0.05
 # Setup checks - ONE command
 mplx config get rpcUrl && mplx config get keypair && mplx toolbox sol balance
 
-# File creation - ONE command
-echo '{"name": "NFT #1", ...}' > meta/1.json && \
-echo '{"name": "NFT #2", ...}' > meta/2.json && \
-echo '{"name": "NFT #3", ...}' > meta/3.json
+# File creation - ONE command (each file must follow the NFT JSON schema — see metadata-json.md)
+# Create one .json file per NFT with the correct schema before running uploads
 
 # Uploads - use --directory for folders
 mplx toolbox storage upload ./assets --directory
