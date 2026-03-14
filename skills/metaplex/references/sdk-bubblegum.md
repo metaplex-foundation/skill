@@ -3,7 +3,7 @@
 Umi SDK operations for creating and managing compressed NFTs (cNFTs).
 
 > **Prerequisites**: Set up Umi first — see `./sdk-umi.md` for installation and basic setup.
-> **Docs**: https://developers.metaplex.com/bubblegum-v2
+> **Docs**: https://metaplex.com/docs/smart-contracts/bubblegum-v2
 
 ---
 

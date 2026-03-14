@@ -5,7 +5,7 @@ license: Apache-2.0
 metadata:
   author: metaplex-foundation
   version: "0.1.0"
-  openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://developers.metaplex.com"}
+  openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://metaplex.com/docs"}
 ---
 
 # Metaplex Development Skill
@@ -111,9 +111,9 @@ Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./reference
 
 ## External Resources
 
-- Documentation: https://developers.metaplex.com
-- Core: https://developers.metaplex.com/core
-- Token Metadata: https://developers.metaplex.com/token-metadata
-- Bubblegum: https://developers.metaplex.com/bubblegum-v2
-- Candy Machine: https://developers.metaplex.com/core-candy-machine
-- Genesis: https://developers.metaplex.com/genesis
+- Documentation: https://metaplex.com/docs
+- Core: https://metaplex.com/docs/smart-contracts/core
+- Token Metadata: https://metaplex.com/docs/smart-contracts/token-metadata
+- Bubblegum: https://metaplex.com/docs/smart-contracts/bubblegum-v2
+- Candy Machine: https://metaplex.com/docs/smart-contracts/core-candy-machine
+- Genesis: https://metaplex.com/docs/smart-contracts/genesis

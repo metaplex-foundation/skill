@@ -3,7 +3,7 @@
 Umi SDK operations for creating and managing Core NFTs and collections.
 
 > **Prerequisites**: Set up Umi first — see `./sdk-umi.md` for installation and basic setup.
-> **Docs**: https://developers.metaplex.com/core
+> **Docs**: https://metaplex.com/docs/smart-contracts/core
 
 > **Important**: When passing plugins, use the helper functions (`create`, `createCollection`, `addPlugin`, `addCollectionPlugin`, `updatePlugin`, `removePlugin`). The raw generated functions (`createV1`, `addPluginV1`, etc.) expect a different internal plugin format and will error with the friendly `{ type: 'Royalties', ... }` syntax.
 

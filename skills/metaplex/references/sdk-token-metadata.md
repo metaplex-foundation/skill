@@ -3,7 +3,7 @@
 Umi SDK operations for creating and managing Token Metadata NFTs, pNFTs, and fungible tokens.
 
 > **Prerequisites**: Set up Umi first — see `./sdk-umi.md` for installation and basic setup.
-> **Docs**: https://developers.metaplex.com/token-metadata
+> **Docs**: https://metaplex.com/docs/smart-contracts/token-metadata
 
 ---
 

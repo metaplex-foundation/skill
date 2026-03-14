@@ -345,7 +345,7 @@ await mintV1(umi, {
 }).sendAndConfirm(umi);
 ```
 
-For full guard-specific minting details, see the [Candy Machine documentation](https://developers.metaplex.com/core-candy-machine/guards).
+For full guard-specific minting details, see the [Candy Machine documentation](https://metaplex.com/docs/smart-contracts/core-candy-machine/guards).
 
 ---
 
