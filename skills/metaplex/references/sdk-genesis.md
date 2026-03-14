@@ -994,7 +994,7 @@ Genesis charges protocol-level fees on deposits and withdrawals. Default fees:
 | Unlocked claim | BasisPoints | 500 (5%) |
 | Auction bid | Flat | 1,000,000 (0.001 SOL) |
 
-For current rates, see: https://developers.metaplex.com/protocol-fees
+For current rates, see: https://metaplex.com/docs/protocol-fees
 
 ---
 
@@ -1006,4 +1006,4 @@ Genesis: GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
 
 ## Documentation
 
-Full documentation: https://developers.metaplex.com/genesis
+Full documentation: https://metaplex.com/docs/smart-contracts/genesis

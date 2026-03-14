@@ -4,7 +4,7 @@ Commands for creating and managing token launches (TGEs) via the `mplx` CLI.
 
 > **Prerequisites**: Run Initial Setup from `./cli.md` first (RPC, keypair, SOL balance).
 > **Concepts**: For lifecycle, fees, condition objects, and end behaviors, see `./concepts.md` Genesis section.
-> **Docs**: https://developers.metaplex.com/genesis
+> **Docs**: https://metaplex.com/docs/smart-contracts/genesis
 
 ---
 
@@ -415,7 +415,7 @@ mplx genesis claim-unlocked <GENESIS>
 - Memecoin launches **cannot** use project-only flags (`--tokenAllocation`, `--raiseGoal`, `--raydiumLiquidityBps`, `--fundsRecipient`, `--lockedAllocations`).
 - `--raiseGoal` and token amounts are in **whole units** (e.g., `200` = 200 SOL), NOT base units.
 - `--depositStartTime` accepts **ISO date strings** or **unix timestamps**.
-- Default deposit/withdraw fees: 200 bps (2%). See: https://developers.metaplex.com/protocol-fees
+- Default deposit/withdraw fees: 200 bps (2%). See: https://metaplex.com/docs/protocol-fees
 
 ### Low-Level Commands
 
@@ -426,5 +426,5 @@ mplx genesis claim-unlocked <GENESIS>
 - **`finalize` requires 100% supply allocation** — all tokens must be assigned to buckets. Add unlocked buckets for any remainder.
 - **`claimStart` must be strictly after `depositEnd`** — setting them equal causes an error.
 - **`--endBehavior` is required on launch pool buckets** for `finalize` to succeed.
-- Default deposit/withdraw fees: 200 bps (2%). See: https://developers.metaplex.com/protocol-fees
+- Default deposit/withdraw fees: 200 bps (2%). See: https://metaplex.com/docs/protocol-fees
 - No `--wizard` mode — all flags must be provided explicitly.

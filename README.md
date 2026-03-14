@@ -1,6 +1,6 @@
 # Metaplex Skill
 
-An [Agent Skill](https://agentskills.io) for building on [Metaplex](https://developers.metaplex.com) — the standard infrastructure for NFTs and tokens on Solana.
+An [Agent Skill](https://agentskills.io) for building on [Metaplex](https://metaplex.com/) — the standard infrastructure for NFTs and tokens on Solana.
 
 ## What It Does
 
@@ -78,9 +78,9 @@ Built on the [Agent Skills specification](https://agentskills.io/specification).
 
 ## Resources
 
-- Metaplex Docs: https://developers.metaplex.com
+- Metaplex Docs: https://metaplex.com/docs
 - Agent Skills Spec: https://agentskills.io
-- Protocol Fees: https://developers.metaplex.com/protocol-fees
+- Protocol Fees: https://metaplex.com/docs/protocol-fees
 
 ## License
 

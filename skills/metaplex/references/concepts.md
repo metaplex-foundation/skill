@@ -250,7 +250,7 @@ Initialize → Add Buckets → Finalize (irreversible) → Deposit Period → Tr
 
 ### Fees
 
-Genesis charges protocol-level fees on deposits and withdrawals. For current fee rates, see: https://developers.metaplex.com/protocol-fees
+Genesis charges protocol-level fees on deposits and withdrawals. For current fee rates, see: https://metaplex.com/docs/protocol-fees
 
 ### Condition Objects
 
