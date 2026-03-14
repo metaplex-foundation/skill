@@ -102,14 +102,16 @@ Collection Account
 
 ---
 
-## Metadata JSON Standard
+## Off-Chain JSON Standards
+
+### NFT Metadata JSON (Core & Token Metadata NFTs)
 
 ```json
 {
   "name": "Asset Name",
   "description": "Description of the asset",
   "image": "https://...",
-  "external_url": "https://...",
+  "external_url": "https://yourproject.com",
   "attributes": [
     {
       "trait_type": "Background",
@@ -133,6 +135,24 @@ Collection Account
 ```
 
 **Categories:** `image`, `video`, `audio`, `vr`, `html`
+
+**`properties.files` ordering convention:**
+- **Index 0** — always the image file, matching the top-level `image` field
+- **Index 1** — the `animation_url` file, if present — can be any rich media type: video, audio, HTML, 3D model, etc.
+- **Index 2+** — any additional files
+
+> **IMPORTANT**: Always include all fields. The minimal subset (`name`, `image`, `attributes` only) is insufficient — wallets and marketplaces rely on `external_url` and `properties` for display and indexing.
+
+### Fungible Token Metadata JSON
+
+```json
+{
+  "name": "TOKEN_NAME",
+  "symbol": "TOKEN_SYMBOL",
+  "description": "TOKEN_DESC",
+  "image": "TOKEN_IMAGE_URL"
+}
+```
 
 ---
 
