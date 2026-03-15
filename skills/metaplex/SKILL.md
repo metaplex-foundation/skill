@@ -61,7 +61,7 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 | Create TM NFT/pNFT | ✅ |
 | Transfer TM NFTs | ✅ |
 | Transfer fungible tokens | ✅ |
-| Transfer Core NFTs | ❌ SDK only |
+| Transfer Core NFTs | ✅ |
 | Upload to Irys | ✅ |
 | Candy Machine drop | ✅ (setup/config/insert — minting requires SDK) |
 | Compressed NFTs (cNFTs) | ✅ (batch limit ~100, use SDK for larger) |
