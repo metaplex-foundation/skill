@@ -102,40 +102,6 @@ Collection Account
 
 ---
 
-## Metadata JSON Standard
-
-```json
-{
-  "name": "Asset Name",
-  "description": "Description of the asset",
-  "image": "https://...",
-  "external_url": "https://...",
-  "attributes": [
-    {
-      "trait_type": "Background",
-      "value": "Blue"
-    },
-    {
-      "trait_type": "Rarity",
-      "value": "Legendary"
-    }
-  ],
-  "properties": {
-    "files": [
-      {
-        "uri": "https://...",
-        "type": "image/png"
-      }
-    ],
-    "category": "image"
-  }
-}
-```
-
-**Categories:** `image`, `video`, `audio`, `vr`, `html`
-
----
-
 ## Authorities
 
 ### Token Metadata Authorities
