@@ -13,7 +13,7 @@ Commands for creating and managing Core NFTs and collections via the `mplx` CLI.
 mplx core asset create --name <NAME> --uri <URI>
 mplx core asset create --name <NAME> --uri <URI> --owner <ADDR>             # Mint to a different wallet — --owner works on all asset create variants
 mplx core asset create --name <NAME> --uri <URI> --collection <ADDR>
-mplx core asset create --files --image <PATH> --json <PATH>                 # From local files (uploads automatically) — may error on JSON upload; use manual upload workflow as fallback
+mplx core asset create --files --image <PATH> --offchain <PATH>                 # From local files (uploads automatically) — may error on JSON upload; use manual upload workflow as fallback
 mplx core asset fetch <ADDR>
 mplx core asset update <ASSETID> --name <NAME>
 mplx core asset update <ASSETID> --uri <URI>
@@ -87,7 +87,7 @@ Note: `basisPoints: 500` = 5%. Creator percentages must total 100.
 
 ```bash
 # Option A: Local files (one step)
-mplx core asset create --files --image ./image.png --json ./metadata.json
+mplx core asset create --files --image ./image.png --offchain ./metadata.json
 
 # Option B: Manual upload workflow
 # 1. Upload image
