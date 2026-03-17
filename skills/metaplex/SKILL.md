@@ -4,7 +4,7 @@ description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, c
 license: Apache-2.0
 metadata:
   author: metaplex-foundation
-  version: "0.1.0"
+  version: "0.2.0"
   openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://metaplex.com/docs"}
 ---
 
@@ -54,6 +54,10 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 ## CLI Capabilities
 
 The `mplx` CLI can handle most Metaplex operations directly. **Read `./references/cli.md` for shared setup, then the program-specific file.**
+
+> **CLI v0.1.0 breaking changes** (for agents/scripts migrating from older versions):
+> - `--json <file>` (used to pass an offchain metadata file path) is now `--offchain <file>`. `--json` is now the standard OCLIF flag for machine-readable output.
+> - All commands now return structured JSON when `--json` is passed — use this for programmatic/agent use.
 
 | Task | CLI Support |
 |------|-------------|

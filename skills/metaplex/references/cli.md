@@ -72,6 +72,22 @@ mplx toolbox token add-metadata <MINT> --name <NAME> --symbol <SYM> --image <PAT
 
 ---
 
+## JSON Output (Agent Use)
+
+All commands support `--json` for structured machine-readable output:
+
+```bash
+mplx core asset create --name "My NFT" --uri "https://..." --json
+mplx genesis launch create --name "My Token" ... --json
+mplx toolbox sol balance --json
+```
+
+Returns a JSON object instead of formatted text. Use this when running the CLI programmatically or from an agent — the output shape is consistent and parseable.
+
+> **Note**: `--offchain <file>` is the flag for passing a local offchain metadata JSON file to upload. This is separate from `--json` (which controls output format).
+
+---
+
 ## Wizard Mode
 
 Several commands support `--wizard` for interactive guided creation:
@@ -97,10 +113,10 @@ Some commands can upload files and create assets in one step, as an alternative 
 ```bash
 # Core asset from local files (uploads image + JSON, then creates)
 # Prepare metadata.json first — follow the NFT schema in metadata-json.md
-mplx core asset create --files --image ./image.png --json ./metadata.json
+mplx core asset create --files --image ./image.png --offchain ./metadata.json
 
 # TM NFT from local files (no --files flag needed for tm)
-mplx tm create --image ./image.png --json ./metadata.json
+mplx tm create --image ./image.png --offchain ./metadata.json
 
 # Fungible token always uses local image (no --files flag needed)
 mplx toolbox token create --name "My Token" --symbol "MTK" --decimals 9 --image ./image.png

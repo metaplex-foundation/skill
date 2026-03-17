@@ -22,7 +22,7 @@ mplx tm create --name <NAME> --uri <URI>                                 # pNFT 
 mplx tm create --name <NAME> --uri <URI> --type nft                      # Regular NFT
 mplx tm create --name <NAME> --uri <URI> --collection <ADDR>             # In collection
 mplx tm create --name <NAME> --royalties <PERCENT>                      # With royalties (see note below)
-mplx tm create --image <PATH> --json <PATH>                              # From local files (uploads automatically)
+mplx tm create --image <PATH> --offchain <PATH>                              # From local files (uploads automatically)
 
 # Transfer
 mplx tm transfer <MINT> <DESTINATION>
