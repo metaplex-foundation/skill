@@ -49,7 +49,7 @@ SKILL.md                         Router — loaded when skill activates
 
 **Claude Code** (via skills.sh):
 ```bash
-npx skills add metaplex-foundation/metaplex-skill
+npx skills add metaplex-foundation/skill
 ```
 
 **Claude Code** (manual):
