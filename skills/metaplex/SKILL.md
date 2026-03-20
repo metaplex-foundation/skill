@@ -1,6 +1,6 @@
 ---
 name: metaplex
-description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, candy machines, token launches. Use when working with Token Metadata, Core, Bubblegum, Candy Machine, Genesis, or the mplx CLI.
+description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, candy machines, token launches, autonomous agents. Use when working with Token Metadata, Core, Bubblegum, Candy Machine, Genesis, Agent Registry, or the mplx CLI.
 license: Apache-2.0
 metadata:
   author: metaplex-foundation
@@ -13,11 +13,12 @@ metadata:
 ## Overview
 
 Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
+- **Agent Registry**: On-chain agent identity, wallets, and execution delegation for MPL Core assets
+- **Genesis**: Token launch protocol with fair distribution + liquidity graduation
 - **Core**: Next-gen NFT standard (recommended for new NFT projects)
 - **Token Metadata**: Fungible tokens + legacy NFTs/pNFTs
 - **Bubblegum**: Compressed NFTs (cNFTs) using Merkle trees — massive scale at minimal cost
 - **Candy Machine**: NFT drops with configurable minting rules
-- **Genesis**: Token launch protocol with fair distribution + liquidity graduation
 
 ## Tool Selection
 
@@ -36,6 +37,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | Task Type | Read This File |
 |-----------|----------------|
 | Any CLI operation (shared setup) | `./references/cli.md` |
+| CLI: Agent Registry (identity, delegation) | `./references/cli.md` + `./references/cli-agent.md` |
 | CLI: Core NFTs/Collections | `./references/cli.md` + `./references/cli-core.md` + `./references/metadata-json.md` |
 | CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` + `./references/metadata-json.md` |
 | CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` + `./references/metadata-json.md` |
@@ -47,6 +49,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | SDK: Token Metadata | `./references/sdk-umi.md` + `./references/sdk-token-metadata.md` + `./references/metadata-json.md` |
 | SDK: Compressed NFTs (Bubblegum) | `./references/sdk-umi.md` + `./references/sdk-bubblegum.md` + `./references/metadata-json.md` |
 | SDK: Token Metadata with Kit | `./references/sdk-token-metadata-kit.md` + `./references/metadata-json.md` |
+| SDK: Agent Registry (identity, wallets, delegation) | `./references/sdk-umi.md` + `./references/sdk-agent.md` |
 | SDK: Token launch (Genesis) | `./references/sdk-umi.md` + `./references/sdk-genesis.md` |
 | Off-chain metadata JSON format/schema (NFT or token) | `./references/metadata-json.md` |
 | Account structures, PDAs, concepts | `./references/concepts.md` |
@@ -61,6 +64,8 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 
 | Task | CLI Support |
 |------|-------------|
+| Register agent identity | ✅ |
+| Fetch agent data | ✅ |
 | Create fungible token | ✅ |
 | Create Core NFT/Collection | ✅ |
 | Create TM NFT/pNFT | ✅ |
@@ -77,15 +82,29 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 ## Program IDs
 
 ```
-Token Metadata:  metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s
+Agent Identity:  1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p
+Agent Tools:     TLREGni9ZEyGC3vnPZtqUh95xQ8oPqJSvNjvB7FGK8S
+Genesis:         GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
 Core:            CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d
+Token Metadata:  metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s
 Bubblegum V1:    BGUMAp9SX3uS4efGcFjPjkAQZ4cUNZhtHaMq64nrGf9D
 Bubblegum V2:    BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
 Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
-Genesis:         GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
 ```
 
 ## Quick Decision Guide
+
+### Autonomous Agents
+
+Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Read `./references/sdk-umi.md` + `./references/sdk-agent.md`.
+
+### Token Launches (Token Generation Event / Fair Launch / Memecoin)
+
+Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegisterLaunch`) is recommended — it handles everything in one step. Two launch types:
+- **`project`** (default): Configurable allocations, 48h deposit, team vesting support
+- **`memecoin`**: Simplified, 1h deposit, hardcoded fund flows — only needs name, symbol, image, and deposit start time
+
+Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
 
 ### NFTs: Core vs Token Metadata
 
@@ -106,19 +125,12 @@ Always use **Token Metadata**. Read `./references/cli.md` (toolbox section) for 
 
 Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy-machine.md`.
 
-### Token Launches (Token Generation Event / Fair Launch / Memecoin)
-
-Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegisterLaunch`) is recommended — it handles everything in one step. Two launch types:
-- **`project`** (default): Configurable allocations, 48h deposit, team vesting support
-- **`memecoin`**: Simplified, 1h deposit, hardcoded fund flows — only needs name, symbol, image, and deposit start time
-
-Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
-
 ## External Resources
 
 - Documentation: https://metaplex.com/docs
+- Agent Registry: https://metaplex.com/docs/agents
+- Genesis: https://metaplex.com/docs/smart-contracts/genesis
 - Core: https://metaplex.com/docs/smart-contracts/core
 - Token Metadata: https://metaplex.com/docs/smart-contracts/token-metadata
 - Bubblegum: https://metaplex.com/docs/smart-contracts/bubblegum-v2
 - Candy Machine: https://metaplex.com/docs/smart-contracts/core-candy-machine
-- Genesis: https://metaplex.com/docs/smart-contracts/genesis
