@@ -158,15 +158,14 @@ mplx config wallets set my-wallet
 ```
 
 > Pass `-k /path/to/wallet.json` to bypass the asset-signer wallet for a single command.
-
 > Use `-p /path/to/fee-payer.json` to have a different wallet pay transaction fees.
 
 ### Supported Commands
 
-All CLI commands work with asset-signer wallets. The transaction wrapping is transparent.
+Most CLI commands work with asset-signer wallets. The transaction wrapping is transparent.
 
 - **Core**: `asset create`, `asset transfer`, `asset burn`, `asset update`, `collection create`
-- **Toolbox SOL**: `balance`, `transfer`, `wrap`, `unwrap`
+- **Toolbox SOL**: `balance`, `transfer` (`wrap`/`unwrap` may fail; see CPI limitations)
 - **Toolbox Token**: `transfer`, `create`, `mint`
 - **Toolbox Raw**: `raw --instruction <base64>`
 - **Token Metadata**: `transfer`, `create`, `update`

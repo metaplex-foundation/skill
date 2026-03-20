@@ -415,7 +415,6 @@ await updateCollectionPlugin(umi, {
 Every MPL Core asset has a deterministic **signer PDA** that can hold SOL, tokens, and own other assets. The `execute` function wraps arbitrary instructions so the PDA signs them on-chain via CPI.
 
 > **Permission model**: Only the asset **owner** can call `execute`. Update authority cannot execute.
-
 > **Collection assets**: Pass the `collection` parameter only when `asset.updateAuthority.type === 'Collection'`. Omitting it causes `MissingCollection`; passing it when the asset has `Address`-type update authority causes `InvalidCollection`.
 
 ### Single Instruction
