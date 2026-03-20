@@ -41,6 +41,8 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` + `./references/metadata-json.md` |
 | CLI: Candy Machine (NFT drops) | `./references/cli.md` + `./references/cli-candy-machine.md` + `./references/metadata-json.md` |
 | CLI: Token launch (Genesis) | `./references/cli.md` + `./references/cli-genesis.md` |
+| CLI: Execute / asset-signer wallets / agent vault | `./references/cli.md` + `./references/cli-core.md` (execute section) |
+| SDK: Execute / asset-signer PDA / agent vault | `./references/sdk-umi.md` + `./references/sdk-core.md` (execute section) |
 | CLI: Fungible tokens | `./references/cli.md` (toolbox section) |
 | SDK setup (Umi) | `./references/sdk-umi.md` |
 | SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` + `./references/metadata-json.md` |
@@ -70,6 +72,7 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 | Upload to Irys | ✅ |
 | Candy Machine drop | ✅ (setup/config/insert — minting requires SDK) |
 | Compressed NFTs (cNFTs) | ✅ (batch limit ~100, use SDK for larger) |
+| Execute (asset-signer wallets) | ✅ |
 | Check SOL balance / Airdrop | ✅ |
 | Query assets by owner/collection | ❌ SDK only (DAS API) |
 | Token launch (Genesis) | ✅ |
@@ -105,6 +108,10 @@ Always use **Token Metadata**. Read `./references/cli.md` (toolbox section) for 
 ### NFT Drops
 
 Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy-machine.md`.
+
+### Asset as Agent / Vault / Wallet (Execute)
+
+Use **Core Execute** when an asset (NFT, agent, vault) needs to hold SOL/tokens, transfer funds, sign transactions, or own other assets. Every Core asset has a signer PDA that can act as an autonomous wallet. Read `./references/cli-core.md` (CLI) or `./references/sdk-core.md` (SDK), execute section.
 
 ### Token Launches (Token Generation Event / Fair Launch / Memecoin)
 

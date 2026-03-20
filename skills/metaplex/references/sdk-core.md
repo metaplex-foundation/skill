@@ -71,11 +71,13 @@ await createCollection(umi, {
 ```typescript
 await create(umi, {
   asset: generateSigner(umi),
-  collection: collection.publicKey,
+  collection,  // pass the fetched collection object, not just the publicKey
   name: 'Asset #1',
   uri: 'https://arweave.net/xxx',
 }).sendAndConfirm(umi);
 ```
+
+> The `create` helper requires a collection **object** (from `fetchCollection` or `createCollection`'s signer), not a bare public key. Passing `collection.publicKey` silently creates the asset without a collection association.
 
 ## Create Asset with Plugins (Single Step)
 
@@ -405,6 +407,92 @@ await updateCollectionPlugin(umi, {
   plugin: { type: 'PermanentFreezeDelegate', frozen: false },
 }).sendAndConfirm(umi);
 ```
+
+---
+
+## Execute (Asset-Signer PDA)
+
+Every MPL Core asset has a deterministic **signer PDA** that can hold SOL, tokens, and own other assets. The `execute` function wraps arbitrary instructions so the PDA signs them on-chain via CPI.
+
+> **Permission model**: Only the asset **owner** can call `execute`. Update authority cannot execute.
+> **Collection assets**: Pass the `collection` parameter only when `asset.updateAuthority.type === 'Collection'`. Omitting it causes `MissingCollection`; passing it when the asset has `Address`-type update authority causes `InvalidCollection`.
+
+### Single Instruction
+
+```typescript
+import { execute, findAssetSignerPda, fetchAsset } from '@metaplex-foundation/mpl-core';
+import { transferSol } from '@metaplex-foundation/mpl-toolbox';
+import { createNoopSigner, publicKey, sol } from '@metaplex-foundation/umi';
+
+const asset = await fetchAsset(umi, assetAddress);
+const assetSigner = findAssetSignerPda(umi, { asset: asset.publicKey });
+
+await execute(umi, {
+  asset,
+  instructions: transferSol(umi, {
+    source: createNoopSigner(publicKey(assetSigner)),
+    destination: recipientAddress,
+    amount: sol(0.5),
+  }),
+}).sendAndConfirm(umi);
+```
+
+### Multiple Instructions
+
+Chain instructions using `.add()` on a `TransactionBuilder`:
+
+```typescript
+await execute(umi, {
+  asset,
+  instructions: transferSol(umi, {
+    source: createNoopSigner(publicKey(assetSigner)),
+    destination: recipientAddress,
+    amount: sol(0.25),
+  }).add(
+    transferSol(umi, {
+      source: createNoopSigner(publicKey(assetSigner)),
+      destination: recipientAddress,
+      amount: sol(0.25),
+    })
+  ),
+}).sendAndConfirm(umi);
+```
+
+### With Raw Instruction Array
+
+Extract instructions from a builder and pass as `Instruction[]`. When using raw instructions, provide explicit `signers`:
+
+```typescript
+const instructions = transferSol(umi, {
+  source: createNoopSigner(publicKey(assetSigner)),
+  destination: recipientAddress,
+  amount: sol(0.5),
+}).getInstructions();
+
+await execute(umi, {
+  asset,
+  instructions,
+  signers: [createNoopSigner(publicKey(assetSigner))],
+}).sendAndConfirm(umi);
+```
+
+### With Collection
+
+```typescript
+const { asset, collection } = /* fetched asset and collection */;
+
+await execute(umi, {
+  asset,
+  collection,
+  instructions: transferSol(umi, {
+    source: createNoopSigner(publicKey(assetSigner)),
+    destination: recipientAddress,
+    amount: sol(0.5),
+  }),
+}).sendAndConfirm(umi);
+```
+
+> **CPI limitations**: Large account creation (Merkle trees, candy machines) and native SOL wrapping may fail inside `execute()` due to Solana CPI constraints.
 
 ---
 
