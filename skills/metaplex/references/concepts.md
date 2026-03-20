@@ -100,6 +100,37 @@ Collection Account
 | Collection Authority | `['metadata', program_id, mint, 'collection_authority', authority]` |
 | Use Authority | `['metadata', program_id, mint, 'user', use_authority]` |
 
+### Agent Registry Accounts
+
+```
+AgentIdentityV1 (40 bytes)
+├── key: u8 (discriminator)
+├── bump: u8
+├── _padding: [u8; 6]
+└── asset: Pubkey (the MPL Core asset)
+
+ExecutiveProfileV1 (40 bytes)
+├── key: u8 (discriminator)
+├── _padding: [u8; 7]
+└── authority: Pubkey
+
+ExecutionDelegateRecordV1 (104 bytes)
+├── key: u8 (discriminator)
+├── bump: u8
+├── _padding: [u8; 6]
+├── executiveProfile: Pubkey
+├── authority: Pubkey
+└── agentAsset: Pubkey
+```
+
+### Agent Registry PDAs
+
+| Account | Seeds |
+|---------|-------|
+| Agent Identity | `['agent_identity', asset]` |
+| Executive Profile | `['executive_profile', authority]` |
+| Execution Delegate Record | `['execution_delegate_record', executive_profile, agent_asset]` |
+
 ---
 
 ## Authorities
