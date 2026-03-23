@@ -2,7 +2,7 @@
 
 Commands for creating and managing compressed NFTs (cNFTs) via the `mplx` CLI.
 
-> **Prerequisites**: Run Initial Setup from `./cli.md` first (RPC, keypair, SOL balance).
+> **Prerequisites**: CLI must be configured (RPC, keypair, funded wallet). If not yet verified this session, see `./cli-initial-setup.md`.
 >
 > **Batch limit**: CLI is practical for up to ~100 cNFTs. For larger mints (thousands+), use the Umi SDK (`./sdk-bubblegum.md`) or Candy Machine instead.
 

@@ -36,7 +36,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 
 | Task Type | Read This File |
 |-----------|----------------|
-| Any CLI operation (shared setup) | `./references/cli.md` |
+| Any CLI operation (agent guidelines, batching, explorer links) | `./references/cli.md` |
 | CLI: Agent Registry (identity, delegation) | `./references/cli.md` + `./references/cli-agent.md` |
 | CLI: Core NFTs/Collections | `./references/cli.md` + `./references/cli-core.md` + `./references/metadata-json.md` |
 | CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` + `./references/metadata-json.md` |
@@ -45,7 +45,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | CLI: Token launch (Genesis) | `./references/cli.md` + `./references/cli-genesis.md` |
 | CLI: Execute / asset-signer wallets / agent vault | `./references/cli.md` + `./references/cli-core.md` (execute section) |
 | SDK: Execute / asset-signer PDA / agent vault | `./references/sdk-umi.md` + `./references/sdk-core.md` (execute section) |
-| CLI: Fungible tokens | `./references/cli.md` (toolbox section) |
+| CLI: Fungible tokens | `./references/cli.md` + `./references/cli-toolbox.md` |
 | SDK setup (Umi) | `./references/sdk-umi.md` |
 | SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` + `./references/metadata-json.md` |
 | SDK: Token Metadata | `./references/sdk-umi.md` + `./references/sdk-token-metadata.md` + `./references/metadata-json.md` |
@@ -55,10 +55,11 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | SDK: Token launch (Genesis) | `./references/sdk-umi.md` + `./references/sdk-genesis.md` |
 | Off-chain metadata JSON format/schema (NFT or token) | `./references/metadata-json.md` |
 | Account structures, PDAs, concepts | `./references/concepts.md` |
+| CLI errors, localnet issues | `./references/cli-troubleshooting.md` |
 
 ## CLI Capabilities
 
-The `mplx` CLI can handle most Metaplex operations directly. **Read `./references/cli.md` for shared setup, then the program-specific file.**
+The `mplx` CLI can handle most Metaplex operations directly. **Read `./references/cli.md` for agent guidelines (batching, JSON output, explorer links), then the program-specific file.**
 
 > **CLI v0.1.0 breaking changes** (for agents/scripts migrating from older versions):
 > - `--json <file>` (used to pass an offchain metadata file path) is now `--offchain <file>`. `--json` is now the standard OCLIF flag for machine-readable output.
@@ -99,7 +100,7 @@ Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
 
 ### Autonomous Agents
 
-Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Read `./references/sdk-umi.md` + `./references/sdk-agent.md`.
+Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
 
 ### Token Launches (Token Generation Event / Fair Launch / Memecoin)
 
@@ -122,7 +123,7 @@ Use **Bubblegum** when minting thousands+ of NFTs at minimal cost. See `./refere
 
 ### Fungible Tokens
 
-Always use **Token Metadata**. Read `./references/cli.md` (toolbox section) for CLI commands.
+Always use **Token Metadata**. Read `./references/cli-toolbox.md` for CLI commands.
 
 ### NFT Drops
 
@@ -131,14 +132,6 @@ Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy
 ### Asset as Agent / Vault / Wallet (Execute)
 
 Use **Core Execute** when an asset (NFT, agent, vault) needs to hold SOL/tokens, transfer funds, sign transactions, or own other assets. Every Core asset has a signer PDA that can act as an autonomous wallet. Read `./references/cli-core.md` (CLI) or `./references/sdk-core.md` (SDK), execute section.
-
-### Token Launches (Token Generation Event / Fair Launch / Memecoin)
-
-Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegisterLaunch`) is recommended — it handles everything in one step. Two launch types:
-- **`project`** (default): Configurable allocations, 48h deposit, team vesting support
-- **`memecoin`**: Simplified, 1h deposit, hardcoded fund flows — only needs name, symbol, image, and deposit start time
-
-Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
 
 ## External Resources
 

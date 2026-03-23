@@ -14,7 +14,7 @@ mplx <topic> --help            # e.g., mplx core --help
 mplx <topic> <cmd> --help      # e.g., mplx core asset create --help
 ```
 
-Topics: `config`, `toolbox`, `core`, `tm`, `cm`, `bg`
+Topics: `config`, `toolbox`, `core`, `tm`, `cm`, `bg`, `agents`, `genesis`
 
 ---
 
@@ -22,53 +22,16 @@ Topics: `config`, `toolbox`, `core`, `tm`, `cm`, `bg`
 
 | Topic | Detail File |
 |-------|-------------|
+| Initial Setup | `./cli-initial-setup.md` |
 | Core Assets/Collections | `./cli-core.md` |
 | Token Metadata NFTs/pNFTs | `./cli-token-metadata.md` |
 | Bubblegum (compressed NFTs) | `./cli-bubblegum.md` |
 | Candy Machine (NFT drops) | `./cli-candy-machine.md` |
-| Config, Storage, SOL, Tokens | Below |
-
----
-
-## Shared Commands
-
-```bash
-# Config
-mplx config                              # Show all config
-mplx config get <KEY>                    # KEY: rpcUrl|commitment|payer|keypair
-mplx config set <KEY> <VALUE>
-
-# Storage
-mplx toolbox storage upload <PATH>
-mplx toolbox storage upload <PATH> --directory    # Multiple files at once
-mplx toolbox storage balance                      # Check Irys balance
-mplx toolbox storage fund <AMOUNT>                # Fund Irys account
-mplx toolbox storage withdraw <AMOUNT>            # Withdraw from Irys
-
-# SOL
-mplx toolbox sol balance
-mplx toolbox sol airdrop --amount <NUM>
-mplx toolbox sol transfer <DESTINATION> <AMOUNT>
-mplx toolbox sol wrap <AMOUNT>                    # SOL -> wSOL
-mplx toolbox sol unwrap                           # wSOL -> SOL
-
-# Tokens (fungible)
-mplx toolbox token create --wizard                                          # Interactive (recommended)
-mplx toolbox token create --name <NAME> --symbol <SYM> --decimals <NUM> --image <PATH>
-mplx toolbox token create --name <NAME> --symbol <SYM> --decimals <NUM> --image <PATH> --mint-amount <NUM>
-mplx toolbox token create --name <NAME> --symbol <SYM> --decimals <NUM> --image <PATH> --description <DESC>
-mplx toolbox token mint <MINT_ADDRESS> <AMOUNT>                             # Mint more tokens
-mplx toolbox token mint <MINT_ADDRESS> <AMOUNT> --recipient <ADDR>          # Mint to another wallet
-mplx toolbox token transfer <MINT> <AMOUNT> <DESTINATION>
-mplx toolbox token update <MINT> --name <NAME>                              # Update metadata
-mplx toolbox token add-metadata <MINT> --name <NAME> --symbol <SYM> --image <PATH>  # Add metadata to existing mint
-```
-
-**Notes:**
-- `mplx toolbox token create` requires a local `--image` file — it does NOT accept `--uri`. The CLI handles upload to Irys automatically, so this command requires Irys storage access and will not work on localnet/localhost.
-- `--mint-amount`, `mplx toolbox token mint`, and `mplx toolbox token transfer` amounts are all in **base units** (smallest denomination). E.g., with 9 decimals, `--mint-amount 1000000000` mints 1 token. Tokens are minted to the payer wallet by default (use `mplx toolbox token mint <MINT> <AMOUNT> --recipient <ADDR>` for another wallet).
-- `--decimals 9` is the standard for Solana tokens. Use 9 unless the user specifies otherwise.
-- `mplx toolbox token mint` and `mplx toolbox token transfer` may fail on localnet if the mpl-toolbox program is not deployed. On localnet, use `spl-token mint` and `spl-token transfer` as fallbacks.
+| Genesis (Token Launches) | `./cli-genesis.md` |
+| Agent Registry (Identity, Delegation) | `./cli-agent.md` |
+| Config & RPC Management | `./cli-config.md` |
+| Toolbox (Storage, SOL, Tokens) | `./cli-toolbox.md` |
+| Localnet & Troubleshooting | `./cli-troubleshooting.md` |
 
 ---
 
@@ -128,42 +91,6 @@ If `--files` fails (e.g., upload timeout), fall back to the manual workflow:
 
 ---
 
-## Initial Setup
-
-Run all checks in one command:
-
-```bash
-mplx config get rpcUrl && mplx config get keypair && mplx toolbox sol balance
-```
-
-**Error Resolution:**
-
-| Error | Fix |
-|-------|-----|
-| `mplx: command not found` | `npm i -g @metaplex-foundation/cli` |
-| `No RPC URL configured` | `mplx config set rpcUrl https://api.devnet.solana.com` |
-| `No keypair configured` | `mplx config set keypair ~/.config/solana/id.json` |
-| `0 SOL` | `mplx toolbox sol airdrop --amount 2` (devnet only) |
-
-**Mainnet Safety:** If RPC URL contains `mainnet`, confirm with user before executing commands that spend SOL.
-
----
-
-## Storage Management
-
-```bash
-# Check Irys balance before large uploads
-mplx toolbox storage balance
-
-# Fund Irys account if balance is insufficient
-mplx toolbox storage fund 0.1
-
-# Withdraw unused funds
-mplx toolbox storage withdraw 0.05
-```
-
----
-
 ## Batching Principle
 
 > **CRITICAL**: Always chain commands with `&&` to minimize user approvals. One approval per logical step.
@@ -208,34 +135,3 @@ https://explorer.solana.com/tx/<SIGNATURE>                 # Mainnet
 
 > **Localnet note**: The CLI generates devnet explorer links even when connected to localhost. For localnet, use Solana Explorer with a custom cluster URL: `https://explorer.solana.com/address/<ADDRESS>?cluster=custom&customUrl=http://localhost:8899`
 
----
-
-## Localnet Limitations
-
-When running on localhost/localnet, several CLI features are unavailable or require workarounds:
-
-- **Storage uploads (Irys) do not work on localhost.** Any command that uploads to Irys will fail.
-- **Commands using `--image` without `--uri` will fail** because they attempt to upload to Irys under the hood. This affects `mplx toolbox token create`, `mplx core asset create --files`, and `mplx tm create --image`.
-- **For localnet, always use `--uri`** with any URL (even a placeholder) for create commands: `mplx core asset create --name "Test" --uri "https://example.com/meta.json"`
-- **For fungible tokens on localnet**, use the SPL Token CLI and then attach metadata:
-  ```bash
-  spl-token create-token
-  # Note the mint address, then:
-  mplx toolbox token add-metadata <MINT> --name <NAME> --symbol <SYM> --uri <URI>
-  ```
-- **`mplx core asset update` and `mplx tm update`** also require Irys if re-uploading metadata (e.g., updating `--image`). On localnet, only update fields that do not trigger an upload (e.g., `--name`, `--uri` with a pre-existing URL).
-- **`mplx toolbox token mint` and `mplx toolbox token transfer`** may fail if the mpl-toolbox program is not deployed on your localnet. Use `spl-token mint` and `spl-token transfer` as fallbacks.
-
----
-
-## Troubleshooting
-
-| Error | Solution |
-|-------|----------|
-| `InvalidTokenStandard` | Check asset's actual token standard |
-| `InvalidAuthority` | Verify update/mint authority matches signer |
-| `CollectionNotVerified` | Call `verifyCollectionV1` (TM collections need verification) |
-| `PluginNotFound` | Add plugin first or check type name spelling |
-| `InsufficientFunds` | Fund wallet with more SOL |
-| `Invalid data enum variant` | Check plugin JSON format (array, correct types) |
-| Upload fails / timeout | Check `mplx toolbox storage balance`, fund if needed |

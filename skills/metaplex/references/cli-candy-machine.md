@@ -2,6 +2,10 @@
 
 Candy Machine enables NFT drops with configurable minting rules (guards).
 
+> **Prerequisites**: CLI must be configured (RPC, keypair, funded wallet). If not yet verified this session, see `./cli-initial-setup.md`.
+
+---
+
 ## Directory Structure
 
 ```
@@ -177,47 +181,38 @@ Key fields: `itemsAvailable` (not `number`), `collection` (must be set before `m
 
 ### Guard Groups (Multiple Minting Phases)
 
+Use `groups` instead of `guardConfig` to create separate minting phases (e.g., whitelist then public). Set `guardConfig: {}` when using groups.
+
 ```json
-{
-  "name": "my-candy-machine",
-  "directory": "/path/to/my-candy-machine",
-  "config": {
-    "collection": "<COLLECTION_ADDRESS>",
-    "itemsAvailable": 100,
-    "isMutable": true,
-    "isSequential": false,
-    "guardConfig": {},
-    "groups": [
-      {
-        "label": "wl",
-        "guards": {
-          "allowList": {
-            "merkleRoot": "<MERKLE_ROOT_HASH>"
-          },
-          "solPayment": {
-            "lamports": 500000000,
-            "destination": "<PAYMENT_WALLET>"
-          },
-          "startDate": {
-            "date": "2024-01-01T00:00:00Z"
-          }
-        }
+"groups": [
+  {
+    "label": "wl",
+    "guards": {
+      "allowList": {
+        "merkleRoot": "<MERKLE_ROOT_HASH>"
       },
-      {
-        "label": "public",
-        "guards": {
-          "solPayment": {
-            "lamports": 1000000000,
-            "destination": "<PAYMENT_WALLET>"
-          },
-          "startDate": {
-            "date": "2024-01-02T00:00:00Z"
-          }
-        }
+      "solPayment": {
+        "lamports": 500000000,
+        "destination": "<PAYMENT_WALLET>"
+      },
+      "startDate": {
+        "date": "2024-01-01T00:00:00Z"
       }
-    ]
+    }
+  },
+  {
+    "label": "public",
+    "guards": {
+      "solPayment": {
+        "lamports": 1000000000,
+        "destination": "<PAYMENT_WALLET>"
+      },
+      "startDate": {
+        "date": "2024-01-02T00:00:00Z"
+      }
+    }
   }
-}
+]
 ```
 
 ---
@@ -266,12 +261,7 @@ To generate the Merkle root from a list of wallet addresses, use the Umi SDK:
 
 ```typescript
 import { getMerkleRoot } from '@metaplex-foundation/mpl-core-candy-machine';
-
-const allowedWallets = [
-  'Addr1...', 'Addr2...', 'Addr3...',
-];
-const merkleRoot = getMerkleRoot(allowedWallets);
-// Returns a Uint8Array — convert to hex string for cm-config.json:
+const merkleRoot = getMerkleRoot(['Addr1...', 'Addr2...']);
 const merkleRootHex = Buffer.from(merkleRoot).toString('hex');
 ```
 
@@ -310,65 +300,12 @@ mplx cm withdraw --force
 
 ## Minting from a Candy Machine
 
-The CLI **creates and configures** candy machines but does not have a mint command. Users mint via:
+The CLI **creates and configures** candy machines but does not have a mint command. Minting requires the Umi SDK (`@metaplex-foundation/mpl-core-candy-machine`).
 
-1. **Frontend app** — Build a minting UI using the Umi SDK (`@metaplex-foundation/mpl-core-candy-machine`)
-2. **Script** — Mint programmatically with Umi:
+- **Frontend app** — Build a minting UI with the Umi SDK
+- **Script** — Mint programmatically with `mintV1` from the SDK
 
-```bash
-npm install @metaplex-foundation/mpl-core-candy-machine @metaplex-foundation/umi-bundle-defaults
-```
-
-> **Umi setup required** — see `./sdk-umi.md` "Basic Setup" for full Umi initialization (createUmi, keypairIdentity, etc.)
-
-```typescript
-import { mintV1 } from '@metaplex-foundation/mpl-core-candy-machine';
-import { some } from '@metaplex-foundation/umi';
-
-import { generateSigner } from '@metaplex-foundation/umi';
-
-// Simple mint (no guard groups)
-const asset = generateSigner(umi);
-await mintV1(umi, {
-  candyMachine: candyMachineAddress,
-  collection: collectionAddress,
-  asset,
-}).sendAndConfirm(umi);
-
-// With guard groups — must specify group label + mintArgs for active guards
-const asset2 = generateSigner(umi);
-await mintV1(umi, {
-  candyMachine: candyMachineAddress,
-  collection: collectionAddress,
-  asset: asset2,
-  group: some('public'),
-  mintArgs: {
-    solPayment: some({ destination: paymentWallet }),
-  },
-}).sendAndConfirm(umi);
-```
-
-For allowlist minting, pass the Merkle proof in `mintArgs`:
-
-```typescript
-import { getMerkleProof } from '@metaplex-foundation/mpl-core-candy-machine';
-
-const proof = getMerkleProof(allowedWallets, minterAddress);
-
-const asset3 = generateSigner(umi);
-await mintV1(umi, {
-  candyMachine: candyMachineAddress,
-  collection: collectionAddress,
-  asset: asset3,
-  group: some('wl'),
-  mintArgs: {
-    allowList: some({ merkleProof: proof }),
-    solPayment: some({ destination: paymentWallet }),
-  },
-}).sendAndConfirm(umi);
-```
-
-For full guard-specific minting details, see the [Candy Machine documentation](https://metaplex.com/docs/smart-contracts/core-candy-machine/guards).
+See `./sdk-umi.md` for Umi setup and the [Candy Machine documentation](https://metaplex.com/docs/smart-contracts/core-candy-machine/guards) for minting code examples and guard-specific mint args.
 
 ---
 

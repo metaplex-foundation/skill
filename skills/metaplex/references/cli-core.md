@@ -2,7 +2,7 @@
 
 Commands for creating and managing Core NFTs and collections via the `mplx` CLI.
 
-> **Prerequisites**: Run Initial Setup from `./cli.md` first (RPC, keypair, SOL balance).
+> **Prerequisites**: CLI must be configured (RPC, keypair, funded wallet). If not yet verified this session, see `./cli-initial-setup.md`.
 
 ---
 
