@@ -28,6 +28,9 @@ mplx core collection create --name <NAME> --uri <URI>
 mplx core collection create --name <NAME> --uri <URI> --pluginsFile <PATH>
 mplx core collection fetch <ADDR>
 mplx core collection template                                               # Generate template files
+
+# Execute (Asset-Signer Wallets)
+mplx core asset execute info <ASSETID>                                      # Show signer PDA address and SOL balance
 ```
 
 ---
@@ -121,3 +124,67 @@ mplx core asset create --name "NFT #1" --uri "<META_URI_1>" --collection <ADDR> 
 mplx core asset create --name "NFT #2" --uri "<META_URI_2>" --collection <ADDR> && \
 mplx core asset create --name "NFT #3" --uri "<META_URI_3>" --collection <ADDR>
 ```
+
+---
+
+## Execute (Asset-Signer Wallets)
+
+Every MPL Core asset has a deterministic **signer PDA** that can hold SOL, tokens, and own other assets. Asset-signer wallets let you use this PDA as your active wallet — all CLI commands automatically operate through the PDA.
+
+> **How it works**: When an asset-signer wallet is active, `umi.identity` and `umi.payer` are set to the PDA. At send time, the transaction is wrapped in MPL Core's `execute` instruction, which signs on behalf of the PDA on-chain. The real wallet (asset owner) signs the outer transaction.
+
+### Setup
+
+```bash
+# 1. Check the PDA info for any asset
+mplx core asset execute info <ASSETID>
+
+# 2. Fund the PDA
+mplx toolbox sol transfer 0.1 <signerPdaAddress>
+
+# 3. Register as a wallet
+mplx config wallets add vault --asset <ASSETID>
+
+# 4. Switch to the asset-signer wallet
+mplx config wallets set vault
+
+# 5. Use any command as the PDA
+mplx toolbox sol balance
+mplx toolbox sol transfer 0.01 <destination>
+mplx core asset create --name "PDA Created NFT" --uri "https://example.com/nft"
+
+# Switch back to normal wallet
+mplx config wallets set my-wallet
+```
+
+> Pass `-k /path/to/wallet.json` to bypass the asset-signer wallet for a single command.
+> Use `-p /path/to/fee-payer.json` to have a different wallet pay transaction fees.
+
+### Supported Commands
+
+Most CLI commands work with asset-signer wallets. The transaction wrapping is transparent.
+
+- **Core**: `asset create`, `asset transfer`, `asset burn`, `asset update`, `collection create`
+- **Toolbox SOL**: `balance`, `transfer` (`wrap`/`unwrap` may fail; see CPI limitations)
+- **Toolbox Token**: `transfer`, `create`, `mint`
+- **Toolbox Raw**: `raw --instruction <base64>`
+- **Token Metadata**: `transfer`, `create`, `update`
+- **Bubblegum**: `nft create` (public trees), `nft transfer`, `nft burn`, `collection create`
+- **Genesis**: `create`, `bucket add-*`, `deposit`, `withdraw`, `claim`, `finalize`, `revoke`
+
+### Raw Instructions
+
+```bash
+# Execute arbitrary base64-encoded instructions as the PDA
+mplx toolbox raw --instruction <base64>
+mplx toolbox raw --instruction <ix1> --instruction <ix2>
+echo "<base64>" | mplx toolbox raw --stdin
+```
+
+### CPI Limitations
+
+Some operations cannot be wrapped in `execute()` due to Solana CPI constraints:
+- **Large account creation** — Merkle trees, candy machines (exceed CPI account allocation limits)
+- **Native SOL wrapping** — `transferSol` to a token account fails in CPI context
+
+For these, use a normal wallet to create the infrastructure first, then switch to the asset-signer wallet for subsequent operations.
