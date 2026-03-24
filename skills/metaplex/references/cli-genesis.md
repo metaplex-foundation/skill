@@ -2,7 +2,7 @@
 
 Commands for creating and managing token launches (TGEs) via the `mplx` CLI.
 
-> **Prerequisites**: Run Initial Setup from `./cli.md` first (RPC, keypair, SOL balance).
+> **Prerequisites**: CLI must be configured (RPC, keypair, funded wallet). If not yet verified this session, see `./cli-initial-setup.md`.
 > **Concepts**: For lifecycle, fees, condition objects, and end behaviors, see `./concepts.md` Genesis section.
 > **Docs**: https://metaplex.com/docs/smart-contracts/genesis
 
@@ -409,22 +409,11 @@ mplx genesis claim-unlocked <GENESIS>
 
 ## Important Notes
 
-### Launch API
-
-- Two launch types: **project** (default, 48h deposit, configurable) and **memecoin** (1h deposit, simplified).
-- Memecoin launches **cannot** use project-only flags (`--tokenAllocation`, `--raiseGoal`, `--raydiumLiquidityBps`, `--fundsRecipient`, `--lockedAllocations`).
-- `--raiseGoal` and token amounts are in **whole units** (e.g., `200` = 200 SOL), NOT base units.
-- `--depositStartTime` accepts **ISO date strings** or **unix timestamps**.
 - Default deposit/withdraw fees: 200 bps (2%). See: https://metaplex.com/docs/protocol-fees
-
-### Low-Level Commands
-
-- All timestamps are **Unix seconds** (not milliseconds).
-- All amounts are in **base units** (with 9 decimals: 1 SOL = 1000000000).
-- Cannot add buckets after `finalize`.
-- `finalize` and `revoke` are **irreversible**.
-- **`finalize` requires 100% supply allocation** — all tokens must be assigned to buckets. Add unlocked buckets for any remainder.
+- Launch API `--raiseGoal` is in **whole units** (e.g., `200` = 200 SOL), NOT base units.
+- Low-level commands use **base units** (1 SOL = 1000000000) and **Unix seconds** (not milliseconds).
+- Cannot add buckets after `finalize`. `finalize` and `revoke` are **irreversible**.
+- **`finalize` requires 100% supply allocation** — add unlocked buckets for any remainder.
 - **`claimStart` must be strictly after `depositEnd`** — setting them equal causes an error.
 - **`--endBehavior` is required on launch pool buckets** for `finalize` to succeed.
-- Default deposit/withdraw fees: 200 bps (2%). See: https://metaplex.com/docs/protocol-fees
-- No `--wizard` mode — all flags must be provided explicitly.
+- Low-level commands have no `--wizard` mode — all flags must be provided explicitly.
