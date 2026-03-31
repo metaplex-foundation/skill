@@ -100,7 +100,7 @@ Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
 
 ### Autonomous Agents
 
-Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
+Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. The **Mint Agent API** (`mintAndSubmitAgent`) is the recommended path — it creates the Core asset and registers identity in a single transaction. For existing assets, use `registerIdentityV1` directly. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Agents can optionally link a Genesis token via `setAgentTokenV1`. Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
 
 ### Token Launches (Token Generation Event / Fair Launch / Memecoin)
 
