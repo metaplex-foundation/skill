@@ -103,7 +103,15 @@ Collection Account
 ### Agent Registry Accounts
 
 ```
-AgentIdentityV1 (40 bytes)
+AgentIdentityV2 (104 bytes) — current version, created by RegisterIdentityV1
+├── key: u8 (discriminator)
+├── bump: u8
+├── _padding: [u8; 6]
+├── asset: Pubkey (the MPL Core asset)
+├── agentToken: OptionalPubkey (32 bytes — Genesis token mint, set via SetAgentTokenV1)
+└── _reserved: [u8; 32]
+
+AgentIdentityV1 (40 bytes) — legacy, auto-upgraded to V2 by SetAgentTokenV1
 ├── key: u8 (discriminator)
 ├── bump: u8
 ├── _padding: [u8; 6]

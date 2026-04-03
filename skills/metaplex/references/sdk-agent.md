@@ -30,6 +30,112 @@ const umi = createUmi('https://api.mainnet-beta.solana.com')
 
 ---
 
+## Mint Agent API (Recommended)
+
+The Metaplex Agent API creates an MPL Core asset and registers its identity in a single transaction. This is the recommended path for new agents.
+
+### Mint and Submit in One Call
+
+```typescript
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { mintAndSubmitAgent } from '@metaplex-foundation/mpl-agent-registry';
+
+const umi = createUmi('https://api.mainnet-beta.solana.com');
+
+const result = await mintAndSubmitAgent(umi, {}, {
+  wallet: umi.identity.publicKey,
+  name: 'My AI Agent',
+  uri: 'https://example.com/agent-metadata.json',
+  agentMetadata: {
+    type: 'agent',
+    name: 'My AI Agent',
+    description: 'An autonomous agent that executes DeFi strategies on Solana.',
+    services: [
+      { name: 'web', endpoint: 'https://myagent.ai' },
+      { name: 'A2A', endpoint: 'https://myagent.ai/agent-card.json' },
+    ],
+    registrations: [],
+    supportedTrust: ['reputation'],
+  },
+});
+
+console.log('Agent minted! Asset:', result.assetAddress);
+console.log('Signature:', result.signature);
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `wallet` | Yes | The agent owner's wallet public key (signs the transaction) |
+| `name` | Yes | Display name for the Core asset |
+| `uri` | Yes | Metadata URI for the Core asset |
+| `agentMetadata` | Yes | Agent registration metadata (see ERC-8004 section below) |
+| `network` | No | Target network (defaults to `solana-mainnet`) |
+
+Returns: `{ signature: Uint8Array, assetAddress: string }`
+
+### Mint with Separate Signing
+
+Use `mintAgent` for custom signing flows (hardware wallets, multi-sig):
+
+```typescript
+import { mintAgent, signAndSendAgentTransaction } from '@metaplex-foundation/mpl-agent-registry';
+
+const mintResult = await mintAgent(umi, {}, {
+  wallet: umi.identity.publicKey,
+  name: 'My AI Agent',
+  uri: 'https://example.com/agent-metadata.json',
+  agentMetadata: {
+    type: 'agent',
+    name: 'My AI Agent',
+    description: 'An autonomous agent.',
+    services: [],
+    registrations: [],
+    supportedTrust: [],
+  },
+});
+
+const signature = await signAndSendAgentTransaction(umi, mintResult);
+```
+
+Returns: `{ transaction: Transaction, blockhash: BlockhashWithExpiryBlockHeight, assetAddress: string }`
+
+### API Configuration
+
+Pass an `AgentApiConfig` object as the second argument:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `baseUrl` | `https://api.metaplex.com` | Base URL of the Metaplex API |
+| `fetch` | `globalThis.fetch` | Custom fetch implementation |
+
+### Supported Networks
+
+`solana-mainnet` (default), `solana-devnet`, `localnet`, `eclipse-mainnet`, `sonic-mainnet`, `sonic-devnet`, `fogo-mainnet`, `fogo-testnet`
+
+### API Error Handling
+
+```typescript
+import { isAgentApiError, isAgentApiNetworkError } from '@metaplex-foundation/mpl-agent-registry';
+
+try {
+  const result = await mintAndSubmitAgent(umi, {}, input);
+} catch (err) {
+  if (isAgentApiError(err)) {
+    console.error('API error:', err.statusCode, err.responseBody);
+  } else if (isAgentApiNetworkError(err)) {
+    console.error('Network error:', err.cause.message);
+  }
+}
+```
+
+| Error Type | Description |
+|------------|-------------|
+| `AgentApiError` | HTTP response error — includes `statusCode` and `responseBody` |
+| `AgentApiNetworkError` | Network connectivity issue — includes the underlying `cause` |
+| `AgentValidationError` | Client-side validation failure — includes the `field` that failed |
+
+---
+
 ## Register Agent Identity
 
 Creates a PDA derived from the asset's public key and attaches an `AgentIdentity` plugin with lifecycle hooks for Transfer, Update, and Execute.
@@ -106,18 +212,43 @@ The `agentRegistrationUri` points to a JSON document hosted on permanent storage
 
 ---
 
+## Set Agent Token (Genesis Link)
+
+Associates a Genesis token with an existing agent identity. The Genesis account must use `Mint` funding mode. If the identity is still V1 (40 bytes), the program auto-upgrades it to V2 (104 bytes).
+
+```typescript
+import { setAgentTokenV1 } from '@metaplex-foundation/mpl-agent-registry';
+
+await setAgentTokenV1(umi, {
+  asset: assetPublicKey,
+  genesisAccount: genesisAccountPublicKey,
+}).sendAndConfirm(umi);
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `asset` | The registered agent's MPL Core asset |
+| `genesisAccount` | The Genesis account for the agent's token launch |
+| `payer` | Pays for additional rent if upgrading V1 → V2 (defaults to `umi.payer`) |
+| `authority` | Must be the asset's Asset Signer PDA — no default, must be provided explicitly |
+| `agentIdentity` | The agent identity PDA (auto-derived from `asset` if omitted) |
+
+> The agent token can only be set once. Calling on an identity that already has a token fails with `AgentTokenAlreadySet`.
+
+---
+
 ## Check Registration
 
 ```typescript
-import { safeFetchAgentIdentityV1, findAgentIdentityV1Pda } from '@metaplex-foundation/mpl-agent-registry';
+import { safeFetchAgentIdentityV2, findAgentIdentityV2Pda } from '@metaplex-foundation/mpl-agent-registry';
 
-const pda = findAgentIdentityV1Pda(umi, { asset: assetPublicKey });
-const identity = await safeFetchAgentIdentityV1(umi, pda);
+const pda = findAgentIdentityV2Pda(umi, { asset: assetPublicKey });
+const identity = await safeFetchAgentIdentityV2(umi, pda);
 
 console.log('Registered:', identity !== null);
 ```
 
-> `safeFetchAgentIdentityV1` returns `null` for unregistered assets instead of throwing.
+> `safeFetchAgentIdentityV2` returns `null` for unregistered assets instead of throwing. V1 fetchers (`safeFetchAgentIdentityV1`, `findAgentIdentityV1Pda`) still work for legacy accounts.
 
 ## Fetch Identity from Seeds
 
@@ -243,6 +374,28 @@ const account = await umi.rpc.getAccount(delegateRecord);
 console.log('Delegated:', account.exists);
 ```
 
+## Revoke Execution
+
+Removes an existing execution delegation. Either the asset owner or the executive authority can revoke. Rent from the closed delegation record is refunded to the destination.
+
+```typescript
+import { revokeExecutionV1 } from '@metaplex-foundation/mpl-agent-registry';
+
+await revokeExecutionV1(umi, {
+  executionDelegateRecord: delegateRecordPda,
+  agentAsset: agentAssetPublicKey,
+  destination: umi.payer.publicKey,
+}).sendAndConfirm(umi);
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `executionDelegateRecord` | The delegation record PDA to close |
+| `agentAsset` | The agent asset the delegation was for |
+| `destination` | Receives the refunded rent from the closed account |
+| `payer` | The payer (defaults to `umi.payer`) |
+| `authority` | Must be the asset owner or the executive authority (defaults to `payer`) |
+
 ---
 
 ## Full Example: Register + Delegate
@@ -305,7 +458,8 @@ await delegateExecutionV1(umi, {
 
 | Account | Seeds | Size |
 |---------|-------|------|
-| `AgentIdentityV1` | `["agent_identity", <asset_pubkey>]` | 40 bytes |
+| `AgentIdentityV2` | `["agent_identity", <asset_pubkey>]` | 104 bytes |
+| `AgentIdentityV1` (legacy) | `["agent_identity", <asset_pubkey>]` | 40 bytes |
 | `ExecutiveProfileV1` | `["executive_profile", <authority>]` | 40 bytes |
 | `ExecutionDelegateRecordV1` | `["execution_delegate_record", <executive_profile>, <agent_asset>]` | 104 bytes |
 
@@ -329,6 +483,13 @@ Same addresses on Mainnet and Devnet.
 | 2 | `InvalidAccountData` | PDA derivation does not match the asset |
 | 3 | `InvalidMplCoreProgram` | MPL Core program account is incorrect |
 | 4 | `InvalidCoreAsset` | Asset is not a valid MPL Core asset |
+| 5 | `InvalidAgentToken` | Agent token account is invalid |
+| 6 | `OnlyAssetSignerCanSetAgentToken` | Authority must be the Asset Signer PDA |
+| 7 | `AgentTokenAlreadySet` | Agent token has already been set on this identity |
+| 8 | `InvalidAgentIdentity` | Agent identity account is invalid or not owned by this program |
+| 9 | `AgentIdentityAlreadyRegistered` | Asset already has a registered identity |
+| 10 | `InvalidGenesisAccount` | Genesis account is invalid (wrong owner, discriminator, or too small) |
+| 11 | `GenesisNotMintFunded` | Genesis account does not use Mint funding mode |
 
 ### Agent Tools
 
@@ -346,3 +507,5 @@ Same addresses on Mainnet and Devnet.
 | 9 | `AgentIdentityNotRegistered` | Asset does not have a registered identity |
 | 10 | `AssetOwnerMustBeTheOneToDelegateExecution` | Only the asset owner can delegate execution |
 | 11 | `InvalidExecutiveProfileDerivation` | Executive profile PDA derivation mismatch |
+| 12 | `ExecutionDelegateRecordMustBeInitialized` | Delegation record does not exist or is not initialized |
+| 13 | `UnauthorizedRevoke` | Signer is not the asset owner or the executive authority |
