@@ -230,7 +230,8 @@ await setAgentTokenV1(umi, {
 | `asset` | The registered agent's MPL Core asset |
 | `genesisAccount` | The Genesis account for the agent's token launch |
 | `payer` | Pays for additional rent if upgrading V1 → V2 (defaults to `umi.payer`) |
-| `authority` | Must be the Asset Signer PDA (defaults to `payer`) |
+| `authority` | Must be the asset's Asset Signer PDA — no default, must be provided explicitly |
+| `agentIdentity` | The agent identity PDA (auto-derived from `asset` if omitted) |
 
 > The agent token can only be set once. Calling on an identity that already has a token fails with `AgentTokenAlreadySet`.
 
