@@ -37,7 +37,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | Task Type | Read This File |
 |-----------|----------------|
 | Any CLI operation (agent guidelines, batching, explorer links) | `./references/cli.md` |
-| CLI: Agent Registry (identity, delegation) | `./references/cli.md` + `./references/cli-agent.md` |
+| CLI: Agent Registry (identity, delegation, revocation, token linking) | `./references/cli.md` + `./references/cli-agent.md` |
 | CLI: Core NFTs/Collections | `./references/cli.md` + `./references/cli-core.md` + `./references/metadata-json.md` |
 | CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` + `./references/metadata-json.md` |
 | CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` + `./references/metadata-json.md` |
@@ -69,6 +69,8 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 |------|-------------|
 | Register agent identity | ✅ |
 | Fetch agent data | ✅ |
+| Revoke execution delegation | ✅ |
+| Set agent token (Genesis link) | ✅ (requires asset-signer mode) |
 | Create fungible token | ✅ |
 | Create Core NFT/Collection | ✅ |
 | Create TM NFT/pNFT | ✅ |

@@ -11,46 +11,43 @@ Commands for registering agent identities and delegating execution via the `mplx
 
 ### Register Agent Identity
 
-Binds an on-chain identity record to an MPL Core asset. Creates a PDA, attaches an `AgentIdentity` plugin with lifecycle hooks for Transfer, Update, and Execute.
+Creates a Core asset and registers an on-chain agent identity. By default uses the Metaplex Agent API (single transaction, no Irys upload needed). Use `--use-ix` to send the `registerIdentityV1` instruction directly instead.
 
 ```bash
-# Interactive wizard (creates new asset + walks through registration document)
-mplx agents register --new --wizard
-
-# New asset with inline flags
-mplx agents register --new --name "My Agent" --description "An autonomous agent" \
+# API (default) — creates asset + registers identity in one transaction
+mplx agents register --name "My Agent" --description "An autonomous agent" \
   --image "./avatar.png"
 
-# New asset with services and trust models
-mplx agents register --new --name "My Agent" --description "An autonomous agent" \
+# API with services and trust models
+mplx agents register --name "My Agent" --description "An autonomous agent" \
   --image "./avatar.png" \
-  --services '[{"name":"MCP","endpoint":"https://example.com/mcp","version":"2025-06-18"}]' \
+  --services '[{"name":"MCP","endpoint":"https://example.com/mcp"}]' \
   --supported-trust '["reputation","crypto-economic"]'
 
-# Existing asset — build document from flags
-mplx agents register <ASSET> --name "My Agent" --description "An autonomous agent" \
-  --image "./avatar.png"
+# Direct IX — existing asset with local registration document
+mplx agents register <ASSET> --use-ix --from-file "./agent-doc.json"
 
-# Existing asset — upload a local registration document
-mplx agents register <ASSET> --from-file "./agent-doc.json"
-
-# Existing asset with collection authority
-mplx agents register <ASSET> --collection <COLLECTION> --name "My Agent" \
+# Direct IX — existing asset with inline flags
+mplx agents register <ASSET> --use-ix --name "My Agent" \
   --description "An autonomous agent" --image "./avatar.png"
 
-# Save the generated document locally (in addition to uploading)
-mplx agents register --new --name "My Agent" --description "..." --image "./avatar.png" \
-  --save-document "./agent-doc.json"
+# Direct IX — new asset with inline flags
+mplx agents register --new --use-ix --name "My Agent" \
+  --description "An autonomous agent" --image "./avatar.png"
+
+# Direct IX — interactive wizard
+mplx agents register --new --wizard
 ```
 
 | Flag | Description |
 |------|-------------|
-| `--new` | Create a new Core asset and register it |
+| `--use-ix` | Send the `registerIdentityV1` instruction directly instead of using the API |
+| `--new` | Create a new Core asset (only needed with `--use-ix`) |
 | `--owner` | Owner public key for the new asset (defaults to signer, only with `--new`) |
 | `--collection` | Collection address the asset belongs to |
-| `--wizard` | Interactive wizard to build the registration document |
-| `--from-file <path>` | Path to a local agent registration JSON file to upload |
-| `--name` | Agent name for building the registration document |
+| `--wizard` | Interactive wizard to build the registration document (implies `--use-ix`) |
+| `--from-file <path>` | Path to a local agent registration JSON file to upload (implies `--use-ix`) |
+| `--name` | Agent name |
 | `--description` | Agent description |
 | `--image` | Agent image file path (uploaded) or existing URI |
 | `--active` | Set agent as active (default: true) |
@@ -59,6 +56,8 @@ mplx agents register --new --name "My Agent" --description "..." --image "./avat
 | `--save-document` | Save the generated document JSON to a local file |
 
 > `--wizard`, `--from-file`, and `--name` are mutually exclusive — use one approach to provide the registration document.
+> Passing an asset address or `--from-file`/`--wizard` automatically implies `--use-ix`.
+> The API path detects the network from your configured RPC endpoint.
 
 ### Fetch Agent Identity
 
@@ -94,6 +93,33 @@ mplx agents executive delegate <ASSET> --executive <EXECUTIVE_WALLET>
 
 > Only the asset owner can delegate. The agent must be registered and the executive must have a profile.
 
+### Revoke Execution
+
+Removes an existing execution delegation. Either the asset owner or the executive can revoke. Rent from the closed delegation record is refunded.
+
+```bash
+# Executive revoking their own delegation (--executive defaults to signer)
+mplx agents executive revoke <ASSET>
+
+# Asset owner revoking a specific executive's delegation
+mplx agents executive revoke <ASSET> --executive <EXECUTIVE_WALLET>
+```
+
+| Flag | Description |
+|------|-------------|
+| `--executive` | The executive's wallet address (defaults to the current signer) |
+| `--destination` | Wallet to receive refunded rent (defaults to the current signer) |
+
+### Set Agent Token
+
+Links a Genesis token to a registered agent identity. Must be run in asset-signer mode.
+
+```bash
+mplx agents set-agent-token <ASSET> <GENESIS_ACCOUNT>
+```
+
+> Requires asset-signer mode. Configure with `mplx config wallets add --name my-agent --type asset-signer --asset <ASSET>` then `mplx config wallets set my-agent`.
+
 ---
 
 ## Typical Workflows
@@ -101,8 +127,8 @@ mplx agents executive delegate <ASSET> --executive <EXECUTIVE_WALLET>
 ### Register a New Agent (Quick)
 
 ```bash
-# One command — creates asset, uploads image + doc, registers identity
-mplx agents register --new --name "My Agent" \
+# One command via the API — creates asset + registers identity
+mplx agents register --name "My Agent" \
   --description "An autonomous trading agent on Solana" \
   --image "./avatar.png"
 ```
@@ -111,7 +137,7 @@ mplx agents register --new --name "My Agent" \
 
 ```bash
 # 1. Register agent
-mplx agents register --new --name "My Agent" \
+mplx agents register --name "My Agent" \
   --description "An autonomous agent" --image "./avatar.png"
 # Note the asset address from output
 
@@ -132,7 +158,7 @@ mplx agents fetch <ASSET>
 
 ## Agent Registration Document
 
-The `--name`/`--from-file`/`--wizard` flags produce an [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) JSON document uploaded to Arweave. See `./sdk-agent.md` for the full field reference.
+When using `--use-ix`, the `--name`/`--from-file`/`--wizard` flags produce an [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) JSON document uploaded to Arweave. The API path handles metadata storage on metaplex.com automatically. See `./sdk-agent.md` for the full field reference.
 
 Service types: `web`, `A2A`, `MCP`, `OASF`, `DID`, `email`, or custom.
 Trust models: `reputation`, `crypto-economic`, `tee-attestation`.
