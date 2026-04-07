@@ -15,6 +15,8 @@ Umi SDK operations for registering agent identities, reading agent data, and del
 npm install @metaplex-foundation/mpl-agent-registry
 ```
 
+> **CJS/ESM interop**: `mpl-agent-registry` ships as CommonJS. In `.mjs` files or ESM projects, use: `import pkg from '@metaplex-foundation/mpl-agent-registry'; const { mintAndSubmitAgent } = pkg;`
+
 ## Setup
 
 ```typescript
@@ -453,6 +455,69 @@ await delegateExecutionV1(umi, {
   executiveProfile,
 }).sendAndConfirm(umi);
 ```
+
+---
+
+## Full Example: Register Agent + Launch Bonding Curve Token
+
+End-to-end workflow using the Mint Agent API and Genesis Launch API to create an agent and launch a bonding curve token linked to it.
+
+```typescript
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { keypairIdentity } from '@metaplex-foundation/umi';
+import { mintAndSubmitAgent } from '@metaplex-foundation/mpl-agent-registry';
+import { createAndRegisterLaunch } from '@metaplex-foundation/genesis';
+
+const umi = createUmi('https://api.mainnet-beta.solana.com');
+const keypair = umi.eddsa.createKeypairFromSecretKey(mySecretKeyBytes);
+umi.use(keypairIdentity(keypair));
+
+// 1. Mint agent (creates Core asset + registers identity in one tx)
+const agentResult = await mintAndSubmitAgent(umi, {}, {
+  wallet: umi.identity.publicKey,
+  name: 'My Trading Agent',
+  uri: 'https://example.com/agent-metadata.json',
+  agentMetadata: {
+    type: 'agent',
+    name: 'My Trading Agent',
+    description: 'An autonomous trading agent on Solana.',
+    services: [],
+    registrations: [],
+    supportedTrust: ['reputation'],
+  },
+});
+console.log('Agent asset:', agentResult.assetAddress);
+
+// 2. Launch bonding curve token linked to the agent
+//    Note: if the agent was just minted, the API's backend may not have
+//    indexed it yet. See the "RPC propagation" note below.
+const launchResult = await createAndRegisterLaunch(umi, {}, {
+  wallet: umi.identity.publicKey,
+  agent: {
+    mint: agentResult.assetAddress,  // Core asset address from step 1
+    setToken: true,                   // permanently link token to agent (IRREVERSIBLE)
+  },
+  launchType: 'bondingCurve',
+  token: {
+    name: 'Agent Token',
+    symbol: 'AGT',
+    image: 'https://gateway.irys.xyz/your-image-id',
+  },
+  launch: {},  // protocol defaults for bonding curve params
+});
+
+console.log('Token mint:', launchResult.mintAddress);
+console.log('Launch page:', launchResult.launch.link);
+```
+
+> When `agent` is provided:
+> - Creator fee wallet auto-derived from agent's Core asset signer PDA
+> - First buy buyer defaults to agent PDA (if `firstBuyAmount` is set in `launch`)
+> - `setToken: true` is **irreversible** — permanently links the token to the agent
+>
+> See `./sdk-genesis.md` for full bonding curve options (creator fees, first buy, manual signing, swap integration).
+
+> **RPC propagation**: If `createAndRegisterLaunch` fails with "Agent is not owned by the connected wallet", the API's backend hasn't indexed the new agent yet. The on-chain token creation often still succeeds — `createAndRegisterLaunch` calls `createLaunch` (on-chain) then `registerLaunch` (platform listing), and only the registration step fails. Call `registerLaunch` separately to complete it, or use the manual signing flow (`createLaunch` + `signAndSendLaunchTransactions` + `registerLaunch`) for full control over retry timing. When scripting both steps back-to-back, add a ~30 second delay or use a retry loop.
 
 ---
 

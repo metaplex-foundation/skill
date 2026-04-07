@@ -19,7 +19,8 @@ create → bucket add-* → finalize → deposit → transition → graduation �
 **Launch API** (recommended — handles everything in one command):
 
 ```text
-launch create  →  deposit window (project: 48h, memecoin: 1h)  →  Raydium graduation  →  claim
+Launchpool:     launch create  →  deposit window (48h)  →  Raydium graduation  →  claim
+Bonding Curve:  launch create  →  instant trading (buy/sell)  →  sell-out  →  auto-graduation to Raydium CPMM
 ```
 
 ---
@@ -28,17 +29,25 @@ launch create  →  deposit window (project: 48h, memecoin: 1h)  →  Raydium gr
 
 ### Launch API (Recommended)
 
-Two launch types: **project** (default, fully configurable, 48h deposit) and **memecoin** (simplified, 1h deposit).
+Two launch types: **launchpool** (default, fully configurable, 48h deposit) and **bonding-curve** (instant bonding curve).
 
 ```bash
-# Project launch (all-in-one)
+# Launchpool (all-in-one, default)
 mplx genesis launch create --name <NAME> --symbol <SYMBOL> \
   --image <IRYS_URL> --tokenAllocation <AMOUNT> --depositStartTime <ISO_DATE_OR_UNIX_TS> \
   --raiseGoal <WHOLE_UNITS> --raydiumLiquidityBps <BPS> --fundsRecipient <ADDR>
 
-# Memecoin launch (simplified — only requires name, symbol, image, depositStartTime)
-mplx genesis launch create --launchType memecoin --name <NAME> --symbol <SYMBOL> \
-  --image <IRYS_URL> --depositStartTime <ISO_DATE_OR_UNIX_TS>
+# Bonding curve launch (instant, no deposit window)
+mplx genesis launch create --launchType bonding-curve --name <NAME> --symbol <SYMBOL> \
+  --image <IRYS_URL>
+
+# Bonding curve with creator fee and first buy
+mplx genesis launch create --launchType bonding-curve --name <NAME> --symbol <SYMBOL> \
+  --image <IRYS_URL> --creatorFeeWallet <ADDR> --firstBuyAmount <SOL_AMOUNT>
+
+# Bonding curve with agent (auto-derives creator fee wallet from agent PDA)
+mplx genesis launch create --launchType bonding-curve --name <NAME> --symbol <SYMBOL> \
+  --image <IRYS_URL> --agentMint <AGENT_ASSET> --agentSetToken
 
 # Register an existing genesis account on the platform
 mplx genesis launch register <GENESIS_ACCOUNT> --launchConfig <PATH_TO_JSON>
@@ -93,25 +102,29 @@ mplx genesis revoke <GENESIS> --revokeMint --revokeFreeze
 All-in-one command: creates the token, sets up the genesis account with a launch pool, optionally adds locked (vesting) allocations, signs and sends transactions, then registers the launch on the Metaplex platform. Returns a public launch page link.
 
 **Launch types:**
-- **`project`** (default): Total supply 1B, 48-hour deposit period, fully configurable allocations. Requires `--tokenAllocation`, `--raiseGoal`, `--raydiumLiquidityBps`, `--fundsRecipient`.
-- **`memecoin`**: Total supply 1B, 1-hour deposit period, hardcoded fund flows. Only needs `--name`, `--symbol`, `--image`, `--depositStartTime`. Cannot use project-only flags.
+- **`launchpool`** (default): Total supply 1B, 48-hour deposit period, fully configurable allocations. Requires `--tokenAllocation`, `--raiseGoal`, `--raydiumLiquidityBps`, `--fundsRecipient`.
+- **`bonding-curve`**: Instant bonding curve (constant product AMM). No deposit window — trading starts immediately. Optional creator fees, first buy, and agent mode. Only needs `--name`, `--symbol`, `--image`.
 
 | Flag | Short | Required | Default | Description |
 |------|-------|----------|---------|-------------|
-| `--launchType` | - | No | `project` | `project` or `memecoin` |
+| `--launchType` | - | No | `launchpool` | `launchpool` or `bonding-curve` |
 | `--name` | `-n` | Yes | - | Token name (1-32 characters) |
 | `--symbol` | `-s` | Yes | - | Token symbol (1-10 characters) |
 | `--image` | - | Yes | - | Token image URL (must be `https://gateway.irys.xyz/...`) |
-| `--depositStartTime` | - | Yes | - | ISO date string or unix timestamp. Project: 48h deposit. Memecoin: 1h deposit. |
-| `--tokenAllocation` | - | Project only | - | Launch pool token allocation (portion of 1B total supply) |
-| `--raiseGoal` | - | Project only | - | Minimum quote tokens to raise, in **whole units** (e.g., `200` = 200 SOL) |
-| `--raydiumLiquidityBps` | - | Project only | - | Basis points for Raydium LP (2000-10000, i.e., 20%-100%) |
-| `--fundsRecipient` | - | Project only | - | Wallet receiving the unlocked portion of raised funds |
+| `--depositStartTime` | - | Launchpool only | - | ISO date string or unix timestamp. 48h deposit window. Not used for bonding-curve. |
+| `--tokenAllocation` | - | Launchpool only | - | Launch pool token allocation (portion of 1B total supply) |
+| `--raiseGoal` | - | Launchpool only | - | Minimum quote tokens to raise, in **whole units** (e.g., `200` = 200 SOL) |
+| `--raydiumLiquidityBps` | - | Launchpool only | - | Basis points for Raydium LP (2000-10000, i.e., 20%-100%) |
+| `--fundsRecipient` | - | Launchpool only | - | Wallet receiving the unlocked portion of raised funds |
+| `--creatorFeeWallet` | - | No (bonding-curve only) | Launching wallet | Wallet to receive creator fees from swaps |
+| `--firstBuyAmount` | - | No (bonding-curve only) | - | SOL amount for fee-free initial purchase at launch |
+| `--agentMint` | - | No | - | Agent NFT (Core asset) address. Wraps launch transactions in Core execute instructions. Auto-derives creator fee wallet from agent PDA. |
+| `--agentSetToken` | - | No | `false` | Set the launched token as the agent's primary token. **Irreversible.** Requires `--agentMint`. |
 | `--description` | - | No | - | Token description (max 250 characters) |
 | `--website` | - | No | - | Project website URL |
 | `--twitter` | - | No | - | Project Twitter URL |
 | `--telegram` | - | No | - | Project Telegram URL |
-| `--lockedAllocations` | - | No (project only) | - | Path to JSON file with locked allocation configs (Streamflow vesting) |
+| `--lockedAllocations` | - | No (launchpool only) | - | Path to JSON file with locked allocation configs (Streamflow vesting) |
 | `--quoteMint` | - | No | `SOL` | `SOL`, `USDC`, or a mint address |
 | `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
 | `--apiUrl` | - | No | `https://api.metaplex.com` | Genesis API base URL |
@@ -148,7 +161,7 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
 | `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
 | `--apiUrl` | - | No | `https://api.metaplex.com` | Genesis API base URL |
 
-**Launch Config JSON** — project example (`--launchConfig` file format):
+**Launch Config JSON** — launchpool example (`--launchConfig` file format):
 ```json
 {
   "wallet": "<ADDRESS>",
@@ -163,7 +176,7 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
       "telegram": "https://..."
     }
   },
-  "launchType": "project",
+  "launchType": "launchpool",
   "launch": {
     "launchpool": {
       "tokenAllocation": 500000000,
@@ -179,19 +192,40 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
 }
 ```
 
-**Launch Config JSON** — memecoin example:
+**Launch Config JSON** — bonding curve example:
 ```json
 {
   "wallet": "<ADDRESS>",
   "token": {
-    "name": "My Meme",
-    "symbol": "MEME",
+    "name": "My Token",
+    "symbol": "MTK",
     "image": "https://gateway.irys.xyz/..."
   },
-  "launchType": "memecoin",
+  "launchType": "bondingCurve",
   "launch": {
-    "depositStartTime": "<FUTURE_ISO_DATE>"
+    "creatorFeeWallet": "<FEE_WALLET_ADDRESS>",
+    "firstBuyAmount": 0.1
   },
+  "network": "solana-mainnet",
+  "quoteMint": "SOL"
+}
+```
+
+**Launch Config JSON** — bonding curve with agent:
+```json
+{
+  "wallet": "<ADDRESS>",
+  "token": {
+    "name": "Agent Token",
+    "symbol": "AGT",
+    "image": "https://gateway.irys.xyz/..."
+  },
+  "launchType": "bondingCurve",
+  "agent": {
+    "mint": "<AGENT_CORE_ASSET_ADDRESS>",
+    "setToken": true
+  },
+  "launch": {},
   "network": "solana-mainnet",
   "quoteMint": "SOL"
 }
@@ -296,14 +330,28 @@ All take `<GENESIS>` as positional argument:
 ### Launch via API (Recommended)
 
 ```bash
-# Memecoin launch — simplified, 1-hour deposit window, hardcoded fund flows
-mplx genesis launch create --launchType memecoin \
-  --name "My Meme" \
-  --symbol "MEME" \
-  --image "https://gateway.irys.xyz/abc123" \
-  --depositStartTime "<FUTURE_ISO_DATE>"
+# Bonding curve launch — instant trading, no deposit window
+mplx genesis launch create --launchType bonding-curve \
+  --name "My Token" \
+  --symbol "MTK" \
+  --image "https://gateway.irys.xyz/abc123"
 
-# Project launch — configurable allocations, 48-hour deposit window
+# Bonding curve with creator fee wallet and first buy
+mplx genesis launch create --launchType bonding-curve \
+  --name "My Token" \
+  --symbol "MTK" \
+  --image "https://gateway.irys.xyz/abc123" \
+  --creatorFeeWallet <FEE_WALLET> \
+  --firstBuyAmount 0.1
+
+# Bonding curve with agent (auto fee wallet + set token)
+mplx genesis launch create --launchType bonding-curve \
+  --name "Agent Token" \
+  --symbol "AGT" \
+  --image "https://gateway.irys.xyz/abc123" \
+  --agentMint <AGENT_ASSET> --agentSetToken
+
+# Launchpool — configurable allocations, 48-hour deposit window
 mplx genesis launch create \
   --name "My Token" \
   --symbol "MTK" \
@@ -314,7 +362,19 @@ mplx genesis launch create \
   --raydiumLiquidityBps 5000 \
   --fundsRecipient <WALLET_ADDRESS>
 
-# Project launch with optional metadata
+# Launchpool with agent mode
+mplx genesis launch create \
+  --name "My Token" \
+  --symbol "MTK" \
+  --image "https://gateway.irys.xyz/abc123" \
+  --tokenAllocation 500000000 \
+  --depositStartTime "<FUTURE_ISO_DATE>" \
+  --raiseGoal 200 \
+  --raydiumLiquidityBps 5000 \
+  --fundsRecipient <WALLET_ADDRESS> \
+  --agentMint <AGENT_ASSET> --agentSetToken
+
+# Launchpool with optional metadata
 mplx genesis launch create \
   --name "My Token" \
   --symbol "MTK" \
@@ -329,7 +389,7 @@ mplx genesis launch create \
   --twitter "https://twitter.com/mytoken" \
   --telegram "https://t.me/mytoken"
 
-# Project launch with team vesting (locked allocations)
+# Launchpool with team vesting (locked allocations)
 mplx genesis launch create \
   --name "My Token" \
   --symbol "MTK" \
@@ -417,3 +477,8 @@ mplx genesis claim-unlocked <GENESIS>
 - **`claimStart` must be strictly after `depositEnd`** — setting them equal causes an error.
 - **`--endBehavior` is required on launch pool buckets** for `finalize` to succeed.
 - Low-level commands have no `--wizard` mode — all flags must be provided explicitly.
+- **Bonding curve** launches have no deposit window — trading starts immediately after creation. Graduation to Raydium CPMM fires automatically when all tokens are sold.
+- **`--agentSetToken` is irreversible** — permanently links the launched token to the agent. Cannot be undone.
+- **`--agentMint`** auto-derives the creator fee wallet from the agent's Core asset signer PDA (`['mpl-core-execute', <agent_mint>]`). The first buy buyer also defaults to the agent PDA.
+- **`--firstBuyAmount`** is fee-free (no protocol or creator fee) and is executed as part of the launch transaction. Only applies to bonding curve launches.
+- **`--agentMint` RPC propagation**: The Genesis API verifies agent ownership on-chain. Its backend may lag behind the CLI's RPC after a fresh agent registration. If the error says "Agent is not owned", the on-chain launch may still have succeeded — check with `agents fetch`. If the agent already has a token set, only the platform registration failed; complete it with `genesis launch register`. When scripting, add a ~30 second delay between `agents register` and `genesis launch create`.

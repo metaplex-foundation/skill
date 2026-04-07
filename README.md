@@ -10,15 +10,18 @@ This skill gives your AI coding agent full knowledge of Metaplex programs, CLI c
 
 | Program | What It Does | CLI | Umi SDK | Kit SDK |
 |---------|-------------|-----|---------|---------|
+| **Agent Registry** | On-chain agent identity, wallets, execution delegation | Yes | Yes | - |
+| **Genesis** | Token launches (launchpool + bonding curve) + Raydium graduation | Yes | Yes | - |
 | **Core** | Next-gen NFTs — single account, plugins, royalty enforcement | Yes | Yes | - |
 | **Token Metadata** | Fungible tokens, NFTs, pNFTs, editions | Yes | Yes | Yes |
 | **Bubblegum** | Compressed NFTs via Merkle trees — massive scale at minimal cost | Yes | Yes | - |
 | **Candy Machine** | NFT drops with guards (allowlists, payments, limits) | Yes | Yes | - |
-| **Genesis** | Token launches with fair distribution + liquidity graduation | - | Yes | - |
 
 ## Operations Supported
 
 **CLI (`mplx`)** — direct execution, no code needed:
+- Register agent identities, delegate/revoke execution, link Genesis tokens
+- Launch tokens via bonding curve or launchpool (with optional agent mode)
 - Create/update/burn NFTs, collections, fungible tokens
 - Upload assets to Irys storage
 - Configure and deploy Candy Machines with guards
@@ -27,7 +30,10 @@ This skill gives your AI coding agent full knowledge of Metaplex programs, CLI c
 - Check balances, airdrop SOL
 
 **Umi SDK** — full programmatic access:
-- All CLI operations plus: fetch by owner/collection/creator, DAS API queries, delegates, lock/unlock, print editions, verify/unverify creators and collections, freeze/thaw, soulbound NFTs, plugin management, Genesis token launches
+- Agent Registry: mint agents, register identity, delegate execution, set agent token
+- Genesis Launch API: launchpool and bonding curve launches, agent integration, creator fees, first buy
+- Bonding curve swap integration: fetch state, lifecycle helpers, quotes, slippage, execute swaps
+- All CLI operations plus: fetch by owner/collection/creator, DAS API queries, delegates, lock/unlock, print editions, verify/unverify creators and collections, freeze/thaw, soulbound NFTs, plugin management
 
 **Kit SDK** (@solana/kit) — minimal dependencies:
 - Token Metadata operations: create/transfer NFTs, pNFTs, fungibles, PDAs

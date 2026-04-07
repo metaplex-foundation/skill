@@ -222,8 +222,8 @@ ExecutionDelegateRecordV1 (104 bytes)
 
 ### Launch Types
 
-- **Project**: Full control — configurable allocations, 48-hour deposit window, team vesting support, custom Raydium liquidity split.
-- **Memecoin**: Simplified — 1-hour deposit window, hardcoded fund flows. Only requires token metadata and deposit start time.
+- **Launchpool**: Configurable allocations, 48-hour deposit window, team vesting support, custom Raydium liquidity split.
+- **Bonding Curve**: Instant constant product AMM — no deposit window, trading starts immediately. Optional creator fees, first buy, and agent mode. Auto-graduates to Raydium CPMM when all tokens are sold.
 
 Both types have a total supply of 1 billion tokens and graduate to Raydium liquidity.
 
