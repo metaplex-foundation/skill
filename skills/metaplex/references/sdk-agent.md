@@ -68,7 +68,7 @@ console.log('Signature:', result.signature);
 | `wallet` | Yes | The agent owner's wallet public key (signs the transaction) |
 | `name` | Yes | Display name for the Core asset |
 | `uri` | Yes | Metadata URI for the Core asset |
-| `agentMetadata` | Yes | Agent registration metadata (see ERC-8004 section below) |
+| `agentMetadata` | Yes | `{ type, name, description, services: [{name, endpoint}], registrations: [{agentId, agentRegistry}], supportedTrust: string[] }` |
 | `network` | No | Target network (defaults to `solana-mainnet`) |
 
 Returns: `{ signature: Uint8Array, assetAddress: string }`
@@ -115,12 +115,14 @@ Pass an `AgentApiConfig` object as the second argument:
 ### API Error Handling
 
 ```typescript
-import { isAgentApiError, isAgentApiNetworkError } from '@metaplex-foundation/mpl-agent-registry';
+import { isAgentApiError, isAgentApiNetworkError, isAgentValidationError } from '@metaplex-foundation/mpl-agent-registry';
 
 try {
   const result = await mintAndSubmitAgent(umi, {}, input);
 } catch (err) {
-  if (isAgentApiError(err)) {
+  if (isAgentValidationError(err)) {
+    console.error('Validation error:', err.field, err.message);
+  } else if (isAgentApiError(err)) {
     console.error('API error:', err.statusCode, err.responseBody);
   } else if (isAgentApiNetworkError(err)) {
     console.error('Network error:', err.cause.message);
