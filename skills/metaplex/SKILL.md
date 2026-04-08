@@ -4,7 +4,7 @@ description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, c
 license: Apache-2.0
 metadata:
   author: metaplex-foundation
-  version: "0.2.0"
+  version: "0.3.0"
   openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://metaplex.com/docs"}
 ---
 
