@@ -488,9 +488,10 @@ const agentResult = await mintAndSubmitAgent(umi, {}, {
 });
 console.log('Agent asset:', agentResult.assetAddress);
 
-// 2. Launch bonding curve token linked to the agent
-//    Note: if the agent was just minted, the API's backend may not have
-//    indexed it yet. See the "RPC propagation" note below.
+// 2. Wait for RPC propagation (API backend needs to index the new agent)
+await new Promise(r => setTimeout(r, 30_000));
+
+// 3. Launch bonding curve token linked to the agent
 const launchResult = await createAndRegisterLaunch(umi, {}, {
   wallet: umi.identity.publicKey,
   agent: {

@@ -173,6 +173,8 @@ console.log('View at:', result.launch.link);
 
 All protocol parameters (supply splits, virtual reserves, fund flows) are set to defaults when `launch: {}` is empty.
 
+> For devnet: add `network: 'solana-devnet'` to the input.
+
 ### Bonding Curve with Creator Fees
 
 ```typescript
@@ -231,10 +233,12 @@ const result = await createAndRegisterLaunch(umi, {}, {
 ```
 
 > `setToken: true` permanently associates the token with the agent — **irreversible**. To override the auto-derived fee wallet, set `launch.creatorFeeWallet` explicitly.
+>
+> **Agent launches with `setToken: true`**: Prefer the manual flow below (`createLaunch` + `signAndSendLaunchTransactions` + `registerLaunch`). With `createAndRegisterLaunch`, the on-chain `createLaunch` step may succeed (permanently setting the token) while `registerLaunch` fails due to API indexing lag. Retrying then fails with "Agent already has a different agent token set". The manual flow lets you retry `registerLaunch` independently.
 
 ### `createLaunch` + `registerLaunch` — Full Control
 
-Use when you need custom transaction handling (multisig, Jito bundles, priority fees, retry logic).
+Use when you need custom transaction handling (multisig, Jito bundles, priority fees, retry logic), or for agent launches with `setToken: true` (see note above).
 
 ```typescript
 import {
@@ -353,14 +357,16 @@ After a bonding curve is created, use these SDK functions to read state, get quo
 ```typescript
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { genesis } from '@metaplex-foundation/genesis';
+import { mplToolbox } from '@metaplex-foundation/mpl-toolbox';
 import { keypairIdentity } from '@metaplex-foundation/umi';
 
-const umi = createUmi('https://api.mainnet-beta.solana.com')
-  .use(genesis());
+const umi = createUmi('https://api.mainnet-beta.solana.com').use(mplToolbox()).use(genesis());
 
 const keypair = umi.eddsa.createKeypairFromSecretKey(mySecretKeyBytes);
 umi.use(keypairIdentity(keypair));
 ```
+
+> **`mplToolbox()`** registers SPL Token and Associated Token programs — required for `findAssociatedTokenPda`, `createTokenIfMissing`, `transferSol`, `syncNative`, and `closeToken`.
 
 ### Fetch Bonding Curve State
 
@@ -470,15 +476,58 @@ await swapBondingCurveV2(umi, {
   bucket: bucketPda,
   baseMint,
   quoteMint,
-  userBaseTokenAccount,
-  userQuoteTokenAccount,
+  baseTokenAccount: userBaseTokenAccount,
+  quoteTokenAccount: userQuoteTokenAccount,
   amount: quote.amountIn,
   minAmountOutScaled: minAmountOut,
   swapDirection: SwapDirection.Buy,
 }).sendAndConfirm(umi);
 ```
 
-> **wSOL handling is manual.** For buys: create wSOL ATA, transfer lamports, call `syncNative`. For sells: close wSOL ATA after swap to unwrap.
+> **wSOL handling is manual.** The swap instruction operates on token accounts only — it does not wrap or unwrap native SOL. You must handle this before and after the swap.
+
+### wSOL Wrap / Unwrap
+
+Requires `.use(mplToolbox())` on the Umi instance.
+
+```typescript
+import {
+  mplToolbox, createTokenIfMissing, findAssociatedTokenPda,
+  transferSol, syncNative, closeToken,
+} from '@metaplex-foundation/mpl-toolbox';
+import { publicKey, transactionBuilder, sol } from '@metaplex-foundation/umi';
+
+// umi must have .use(mplToolbox()) applied
+
+const WSOL = publicKey('So11111111111111111111111111111111111111112');
+const SPL_TOKEN = publicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+
+const [userQuoteTokenAccount] = findAssociatedTokenPda(umi, {
+  mint: WSOL,
+  owner: umi.identity.publicKey,
+});
+
+// --- Before a BUY: wrap SOL into wSOL ATA ---
+await transactionBuilder()
+  .add(createTokenIfMissing(umi, { mint: WSOL, token: userQuoteTokenAccount, tokenProgram: SPL_TOKEN }))
+  .add(transferSol(umi, { destination: userQuoteTokenAccount, amount: sol(0.1) }))
+  .add(syncNative(umi, { account: userQuoteTokenAccount }))
+  .sendAndConfirm(umi);
+
+// ... execute swapBondingCurveV2 here ...
+
+// --- After a BUY (or after a SELL to reclaim SOL): unwrap wSOL ---
+await closeToken(umi, {
+  account: userQuoteTokenAccount,
+  destination: umi.identity.publicKey,
+  owner: umi.identity,  // must be a Signer (owner of the token account)
+}).sendAndConfirm(umi);
+```
+
+> Use `createTokenIfMissing` (NOT `createAssociatedToken`) — it is truly idempotent (no-op if the ATA already exists). `createAssociatedToken` fails if the ATA exists.
+> For buys, transfer at least `quote.amountIn` lamports. `sol(0.1)` = 0.1 SOL = 100_000_000 lamports.
+> `closeToken` returns all remaining wSOL balance as native SOL to `destination`. The `owner` must be the token account owner as a `Signer`.
+> The base token ATA does not need to be created manually — `swapBondingCurveV2` creates it internally via CPI.
 
 ### Swap Event Decoding
 
@@ -490,6 +539,106 @@ import { getBondingCurveSwapEventSerializer } from '@metaplex-foundation/genesis
 const [event] = getBondingCurveSwapEventSerializer().deserialize(data.slice(1));
 // event: { direction, amountIn, amountOut, fee, baseTokenBalanceAfter, quoteTokenDepositTotalAfter }
 ```
+
+### End-to-End: Launch Bonding Curve + Buy
+
+Complete working example: create a bonding curve token and immediately buy on it.
+
+```typescript
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { keypairIdentity, publicKey, transactionBuilder, sol } from '@metaplex-foundation/umi';
+import {
+  genesis,
+  createAndRegisterLaunch,
+  findGenesisAccountV2Pda,
+  findBondingCurveBucketV2Pda,
+  fetchBondingCurveBucketV2,
+  getSwapResult,
+  applySlippage,
+  swapBondingCurveV2,
+  isSwappable,
+  SwapDirection,
+} from '@metaplex-foundation/genesis';
+import {
+  mplToolbox, createTokenIfMissing, findAssociatedTokenPda,
+  transferSol, syncNative, closeToken,
+} from '@metaplex-foundation/mpl-toolbox';
+import { readFileSync } from 'fs';
+
+// --- Setup ---
+const keypairFile = JSON.parse(readFileSync('/path/to/keypair.json', 'utf-8'));
+const umi = createUmi('https://api.mainnet-beta.solana.com')
+  .use(mplToolbox())
+  .use(genesis());
+const kp = umi.eddsa.createKeypairFromSecretKey(Uint8Array.from(keypairFile));
+umi.use(keypairIdentity(kp));
+
+const WSOL = publicKey('So11111111111111111111111111111111111111112');
+const SPL_TOKEN = publicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+
+// --- Step 1: Launch bonding curve ---
+const result = await createAndRegisterLaunch(umi, {}, {
+  wallet: umi.identity.publicKey,
+  launchType: 'bondingCurve',
+  token: {
+    name: 'My Token',
+    symbol: 'MTK',
+    image: 'https://gateway.irys.xyz/your-image-id',
+  },
+  launch: {},
+});
+const baseMint = publicKey(result.mintAddress);
+console.log('Mint:', result.mintAddress);
+
+// --- Step 2: Derive PDAs and fetch bucket ---
+const [genesisAccount] = findGenesisAccountV2Pda(umi, { baseMint, genesisIndex: 0 });
+const [bucketPda] = findBondingCurveBucketV2Pda(umi, { genesisAccount, bucketIndex: 0 });
+const bucket = await fetchBondingCurveBucketV2(umi, bucketPda);
+
+if (!isSwappable(bucket)) throw new Error('Curve is not swappable');
+
+// --- Step 3: Get buy quote (0.01 SOL) ---
+const buyAmount = 10_000_000n; // 0.01 SOL in lamports
+const quote = getSwapResult(bucket, buyAmount, SwapDirection.Buy);
+const minOut = applySlippage(quote.amountOut, 200); // 2% slippage
+
+// --- Step 4: Wrap SOL → wSOL ---
+const [userQuoteAta] = findAssociatedTokenPda(umi, { mint: WSOL, owner: umi.identity.publicKey });
+const [userBaseAta] = findAssociatedTokenPda(umi, { mint: baseMint, owner: umi.identity.publicKey });
+
+// Create wSOL ATA if missing (idempotent), fund it — swap creates the base token ATA via CPI
+await transactionBuilder()
+  .add(createTokenIfMissing(umi, { mint: WSOL, token: userQuoteAta, tokenProgram: SPL_TOKEN }))
+  .add(transferSol(umi, { destination: userQuoteAta, amount: sol(0.01) }))
+  .add(syncNative(umi, { account: userQuoteAta }))
+  .sendAndConfirm(umi);
+
+// --- Step 5: Execute swap ---
+await swapBondingCurveV2(umi, {
+  genesisAccount,
+  bucket: bucketPda,
+  baseMint,
+  quoteMint: WSOL,
+  baseTokenAccount: userBaseAta,
+  quoteTokenAccount: userQuoteAta,
+  amount: quote.amountIn,
+  minAmountOutScaled: minOut,
+  swapDirection: SwapDirection.Buy,
+}).sendAndConfirm(umi);
+
+console.log('Buy executed! Tokens received:', quote.amountOut.toString());
+
+// --- Step 6: Unwrap leftover wSOL → SOL ---
+await closeToken(umi, {
+  account: userQuoteAta,
+  destination: umi.identity.publicKey,
+  owner: umi.identity,
+}).sendAndConfirm(umi);
+```
+
+> **Field names matter**: use `amount` (not `amountIn`) and `minAmountOutScaled` (not `minAmountOut`).
+> **SwapDirection is an enum**: use `SwapDirection.Buy` / `.Sell`, never strings `'buy'` / `'sell'`.
+> For **sells**, reverse the flow: no wSOL wrapping needed upfront, but close the wSOL ATA after to reclaim SOL.
 
 ### Bonding Curve Key Points
 
