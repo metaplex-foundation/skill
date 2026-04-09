@@ -4,7 +4,7 @@ description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, c
 license: Apache-2.0
 metadata:
   author: metaplex-foundation
-  version: "0.2.0"
+  version: "0.3.0"
   openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://metaplex.com/docs"}
 ---
 
@@ -42,7 +42,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | CLI: Token Metadata NFTs | `./references/cli.md` + `./references/cli-token-metadata.md` + `./references/metadata-json.md` |
 | CLI: Compressed NFTs (Bubblegum) | `./references/cli.md` + `./references/cli-bubblegum.md` + `./references/metadata-json.md` |
 | CLI: Candy Machine (NFT drops) | `./references/cli.md` + `./references/cli-candy-machine.md` + `./references/metadata-json.md` |
-| CLI: Token launch (Genesis) | `./references/cli.md` + `./references/cli-genesis.md` |
+| CLI: Token launch / bonding curve (Genesis) | `./references/cli.md` + `./references/cli-genesis.md` |
 | CLI: Execute / asset-signer wallets / agent vault | `./references/cli.md` + `./references/cli-core.md` (execute section) |
 | SDK: Execute / asset-signer PDA / agent vault | `./references/sdk-umi.md` + `./references/sdk-core.md` (execute section) |
 | CLI: Fungible tokens | `./references/cli.md` + `./references/cli-toolbox.md` |
@@ -52,7 +52,8 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | SDK: Compressed NFTs (Bubblegum) | `./references/sdk-umi.md` + `./references/sdk-bubblegum.md` + `./references/metadata-json.md` |
 | SDK: Token Metadata with Kit | `./references/sdk-token-metadata-kit.md` + `./references/metadata-json.md` |
 | SDK: Agent Registry (identity, wallets, delegation) | `./references/sdk-umi.md` + `./references/sdk-agent.md` |
-| SDK: Token launch (Genesis) | `./references/sdk-umi.md` + `./references/sdk-genesis.md` |
+| SDK: Token launch + bonding curve swaps (Genesis) | `./references/sdk-umi.md` + `./references/sdk-genesis.md` |
+| SDK: Low-level Genesis (custom buckets, presale, vesting) | `./references/sdk-umi.md` + `./references/sdk-genesis-low-level.md` |
 | Off-chain metadata JSON format/schema (NFT or token) | `./references/metadata-json.md` |
 | Account structures, PDAs, concepts | `./references/concepts.md` |
 | CLI errors, localnet issues | `./references/cli-troubleshooting.md` |
@@ -84,6 +85,7 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 | Check SOL balance / Airdrop | ✅ |
 | Query assets by owner/collection | ❌ SDK only (DAS API) |
 | Token launch (Genesis) | ✅ |
+| Bonding curve swap (Genesis) | ✅ |
 
 ## Program IDs
 
@@ -104,13 +106,13 @@ Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
 
 Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. The **Mint Agent API** (`mintAndSubmitAgent`) is the recommended path — it creates the Core asset and registers identity in a single transaction. For existing assets, use `registerIdentityV1` directly. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Agents can optionally link a Genesis token via `setAgentTokenV1`. Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
 
-### Token Launches (Token Generation Event / Fair Launch / Memecoin)
+### Token Launches (Token Generation Event / Fair Launch / Bonding Curve)
 
 Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegisterLaunch`) is recommended — it handles everything in one step. Two launch types:
-- **`project`** (default): Configurable allocations, 48h deposit, team vesting support
-- **`memecoin`**: Simplified, 1h deposit, hardcoded fund flows — only needs name, symbol, image, and deposit start time
+- **`launchpool`** (default): Configurable allocations, 48h deposit, team vesting support
+- **`bonding-curve`**: Instant bonding curve (constant product AMM) — no deposit window, trading starts immediately, auto-graduates to Raydium CPMM on sell-out. Supports creator fees, first buy, and agent mode.
 
-Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
+Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK launch flow). For custom buckets/presale/vesting, use `./references/sdk-genesis-low-level.md`.
 
 ### NFTs: Core vs Token Metadata
 

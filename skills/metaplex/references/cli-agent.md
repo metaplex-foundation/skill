@@ -154,6 +154,48 @@ mplx agents executive delegate <ASSET> --executive <EXECUTIVE_WALLET>
 mplx agents fetch <ASSET>
 ```
 
+### Register Agent + Launch Token (Bonding Curve)
+
+End-to-end workflow: register an agent and launch a bonding curve token linked to the agent. The `--agentMint` flag auto-derives the creator fee wallet from the agent's Core asset signer PDA.
+
+```bash
+# 1. Register agent
+mplx agents register --name "My Agent" \
+  --description "An autonomous trading agent" --image "./avatar.png"
+# Note the asset address from output (e.g., 7BQj...)
+
+# 2. Launch bonding curve token linked to the agent
+mplx genesis launch create --launchType bonding-curve \
+  --name "Agent Token" --symbol "AGT" \
+  --image "https://gateway.irys.xyz/..." \
+  --agentMint <ASSET> --agentSetToken
+
+# 3. (Optional) Verify the agent has a token
+mplx agents fetch <ASSET>
+```
+
+> `--agentSetToken` is **irreversible** — permanently links the token to the agent. Omit it to launch without linking, then link later with `mplx agents set-agent-token`.
+> See `./cli-genesis.md` for full bonding curve launch options (creator fees, first buy, etc.).
+> **RPC propagation**: If step 2 fails with "Agent is not owned by the connected wallet", the API's backend hasn't indexed the agent yet. The on-chain token creation may still have succeeded — check with `mplx agents fetch <ASSET>`. If the agent already shows a token set on retry, only the platform registration failed; complete it with `mplx genesis launch register`. When scripting, add a ~30 second delay between agent registration and the launch command.
+
+### Register Agent + Launch Token (Launchpool)
+
+```bash
+# 1. Register agent
+mplx agents register --name "My Agent" \
+  --description "An agent with a community token" --image "./avatar.png"
+
+# 2. Launch launchpool token linked to the agent
+mplx genesis launch create \
+  --name "Agent Token" --symbol "AGT" \
+  --image "https://gateway.irys.xyz/..." \
+  --tokenAllocation 500000000 \
+  --depositStartTime "<FUTURE_ISO_DATE>" \
+  --raiseGoal 200 --raydiumLiquidityBps 5000 \
+  --fundsRecipient <WALLET> \
+  --agentMint <ASSET> --agentSetToken
+```
+
 ---
 
 ## Agent Registration Document
