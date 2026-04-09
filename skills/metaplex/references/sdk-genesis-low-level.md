@@ -332,7 +332,7 @@ await addPresaleBucketV2(umi, {
   genesisAccount,
   baseMint: baseMint.publicKey,
   baseTokenAllocation: 100_000_000_000_000n,  // 10% of supply
-  allocationQuoteTokenCap: 50_000_000_000n,   // 50 SOL cap → price = 0.5 SOL per 1M tokens
+  allocationQuoteTokenCap: 50_000_000_000n,   // 50 SOL cap → price = 500 SOL per 1M tokens (50 SOL / 100k tokens)
   minimumDepositAmount: null,                 // no minimum
   depositStartCondition: createTimeAbsoluteCondition(depositStart),
   depositEndCondition: createTimeAbsoluteCondition(depositEnd),
