@@ -50,6 +50,7 @@ await initializeV2(umi, {
 ```
 
 **Token Supply with Decimals:**
+
 ```typescript
 const ONE_TOKEN = 1_000_000_000n;              // 1 token (9 decimals)
 const ONE_MILLION = 1_000_000_000_000_000n;    // 1,000,000 tokens
@@ -299,6 +300,7 @@ console.log('User deposit:', deposit.amountQuoteToken);
 Fixed-price allocation: price = quoteCap / allocation. First-come-first-served.
 
 **Setup for the following examples** (Presale, Bonding Curve, Streamflow):
+
 ```typescript
 const now = BigInt(Math.floor(Date.now() / 1000));
 const depositStart = now;
@@ -723,7 +725,7 @@ For current rates, see: https://metaplex.com/docs/protocol-fees
 
 ## Program ID
 
-```
+```text
 Genesis: GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
 ```
 

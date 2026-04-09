@@ -20,7 +20,7 @@ create → bucket add-* → finalize → deposit → transition → graduation �
 
 ```text
 Launchpool:     launch create  →  deposit window (48h)  →  Raydium graduation  →  claim
-Bonding Curve:  launch create  →  instant trading (buy/sell)  →  sell-out  →  auto-graduation to Raydium CPMM
+Bonding Curve:  launch create  →  swap (buy/sell)  →  sell-out  →  auto-graduation to Raydium CPMM
 ```
 
 ---
@@ -124,6 +124,8 @@ All-in-one command: creates the token, sets up the genesis account with a launch
 | `--website` | - | No | - | Project website URL |
 | `--twitter` | - | No | - | Project Twitter URL |
 | `--telegram` | - | No | - | Project Telegram URL |
+| `--creatorWallet` | - | No | - | Override the launch owner wallet for registration (public key) |
+| `--twitterVerificationToken` | - | No | - | Twitter verification token for verified badge on the launch page |
 | `--lockedAllocations` | - | No (launchpool only) | - | Path to JSON file with locked allocation configs (Streamflow vesting) |
 | `--quoteMint` | - | No | `SOL` | `SOL`, `USDC`, or a mint address |
 | `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
@@ -158,6 +160,8 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
 | Flag | Short | Required | Default | Description |
 |------|-------|----------|---------|-------------|
 | `--launchConfig` | - | Yes | - | Path to JSON file with launch configuration |
+| `--creatorWallet` | - | No | - | Override the launch owner wallet for registration (public key) |
+| `--twitterVerificationToken` | - | No | - | Twitter verification token for verified badge on the launch page |
 | `--network` | - | No | auto-detected | `solana-mainnet` or `solana-devnet` |
 | `--apiUrl` | - | No | `https://api.metaplex.com` | Genesis API base URL |
 
@@ -193,6 +197,7 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
 ```
 
 **Launch Config JSON** — bonding curve example:
+
 ```json
 {
   "wallet": "<ADDRESS>",
@@ -212,6 +217,7 @@ Registers an existing genesis account (created via low-level commands or SDK) wi
 ```
 
 **Launch Config JSON** — bonding curve with agent:
+
 ```json
 {
   "wallet": "<ADDRESS>",
@@ -301,12 +307,53 @@ Treasury/team allocation. No deposits — tokens go directly to recipient.
 | `--bucketIndex` | `-b` | No | `0` | Bucket index |
 | `--claimEnd` | - | No | Year 2100 | Unix timestamp |
 
+### `mplx genesis swap <GENESIS>`
+
+Swap on a Genesis bonding curve. Buy tokens with quote tokens (e.g. SOL) or sell tokens back. The bonding curve uses a constant-product formula for pricing. Auto-wraps SOL to WSOL when buying with native SOL.
+
+Use `--info` to display curve status and price quotes without executing a swap. Combine `--info` with `--buyAmount` or `--sellAmount` to get a quote without swapping.
+
+| Flag | Short | Required | Default | Description |
+|------|-------|----------|---------|-------------|
+| `--buyAmount` | - | One of buy/sell required (unless `--info`) | - | Amount of quote tokens to spend (e.g. lamports for SOL) |
+| `--sellAmount` | - | One of buy/sell required (unless `--info`) | - | Amount of base tokens to sell |
+| `--slippage` | - | No | `200` (2%) | Slippage tolerance in basis points |
+| `--bucketIndex` | `-b` | No | `0` | Index of the bonding curve bucket |
+| `--info` | - | No | `false` | Display curve status and price quotes without executing a swap |
+
+**Examples:**
+```bash
+# View curve info (price, reserves, fill %, swappable)
+mplx genesis swap <GENESIS> --info
+
+# Get a buy quote (no swap executed)
+mplx genesis swap <GENESIS> --info --buyAmount 100000000
+
+# Get a sell quote (no swap executed)
+mplx genesis swap <GENESIS> --info --sellAmount 1000000000
+
+# Buy tokens (0.05 SOL, auto-wraps SOL to WSOL)
+mplx genesis swap <GENESIS> --buyAmount 50000000
+
+# Buy with 1% slippage
+mplx genesis swap <GENESIS> --buyAmount 50000000 --slippage 100
+
+# Sell tokens
+mplx genesis swap <GENESIS> --sellAmount 500000000000
+```
+
+**Output (swap)**: Genesis account, bucket, direction, amount in, expected out, min out (with slippage), fee, creator fee, transaction signature.
+
+**Output (info)**: Tokens per quote unit, quote per token, reserves, fill %, first buy pending, swappable, sold out. When combined with `--buyAmount` or `--sellAmount`, also shows the quote details (amount out, fees, min out).
+
 ### `mplx genesis bucket fetch <GENESIS>`
+
+Auto-detects the bucket type by trying all known types at the given index. Use `--type` to specify explicitly.
 
 | Flag | Short | Required | Default | Description |
 |------|-------|----------|---------|-------------|
 | `--bucketIndex` | `-b` | No | `0` | Bucket index |
-| `--type` | `-t` | No | `launch-pool` | `launch-pool`, `presale`, or `unlocked` |
+| `--type` | `-t` | No | auto-detect | `launch-pool`, `presale`, `unlocked`, or `bonding-curve` |
 
 ### Other Commands
 
@@ -314,6 +361,7 @@ All take `<GENESIS>` as positional argument:
 
 | Command | Key Flags | Description |
 |---------|-----------|-------------|
+| `swap` | `--buyAmount` or `--sellAmount`, `--slippage`, `--info` | Buy/sell on bonding curve, or view curve info/quotes |
 | `deposit` | `--amount` (required), `--bucketIndex` | Deposit into launch pool |
 | `withdraw` | `--amount` (required), `--bucketIndex` | Withdraw from launch pool |
 | `transition` | `--bucketIndex` (required) | Execute end behaviors after deposit period |
@@ -404,6 +452,36 @@ mplx genesis launch create \
 # Register an existing genesis account
 mplx genesis launch register <GENESIS_ACCOUNT> --launchConfig launch.json
 ```
+
+### Bonding Curve Swap
+
+After a bonding curve launch is live, use `genesis swap` to trade or inspect the curve.
+
+```bash
+# Check curve status before trading
+mplx genesis swap <GENESIS> --info
+
+# Get a buy quote for 0.1 SOL without swapping
+mplx genesis swap <GENESIS> --info --buyAmount 100000000
+
+# Get a sell quote for 1000 tokens (9 decimals) without swapping
+mplx genesis swap <GENESIS> --info --sellAmount 1000000000000
+
+# Buy tokens with 0.05 SOL (auto-wraps SOL to WSOL)
+mplx genesis swap <GENESIS> --buyAmount 50000000
+
+# Buy with tighter slippage (1%)
+mplx genesis swap <GENESIS> --buyAmount 50000000 --slippage 100
+
+# Sell tokens back for SOL
+mplx genesis swap <GENESIS> --sellAmount 500000000000
+```
+
+> **`--info` alone** shows price, reserves, fill %, and whether the curve is swappable.
+> **`--info` + `--buyAmount`** adds a buy quote: tokens out, fees, min out at current slippage.
+> **`--info` + `--sellAmount`** adds a sell quote: SOL out, fees, min out at current slippage.
+> Without `--info`, `--buyAmount` or `--sellAmount` executes the swap on-chain.
+> Amounts are in **base units**: 1 SOL = 1000000000 lamports, token amounts depend on decimals (default 9).
 
 ### Launch Pool (Fair Launch — Low-Level)
 

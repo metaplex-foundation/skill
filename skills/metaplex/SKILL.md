@@ -85,6 +85,7 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 | Check SOL balance / Airdrop | ✅ |
 | Query assets by owner/collection | ❌ SDK only (DAS API) |
 | Token launch (Genesis) | ✅ |
+| Bonding curve swap (Genesis) | ✅ |
 
 ## Program IDs
 
@@ -111,7 +112,7 @@ Use **Genesis**. The **Launch API** (`genesis launch create` / `createAndRegiste
 - **`launchpool`** (default): Configurable allocations, 48h deposit, team vesting support
 - **`bonding-curve`**: Instant bonding curve (constant product AMM) — no deposit window, trading starts immediately, auto-graduates to Raydium CPMM on sell-out. Supports creator fees, first buy, and agent mode.
 
-Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK).
+Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./references/sdk-genesis.md` (SDK launch flow). For custom buckets/presale/vesting, use `./references/sdk-genesis-low-level.md`.
 
 ### NFTs: Core vs Token Metadata
 
