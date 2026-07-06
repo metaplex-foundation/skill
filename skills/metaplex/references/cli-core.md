@@ -10,10 +10,10 @@ Commands for creating and managing Core NFTs and collections via the `mplx` CLI.
 
 ```bash
 # Core Assets
-mplx core asset create --name <NAME> --uri <URI>
+mplx core asset create --name <NAME> --uri <URI>                            
 mplx core asset create --name <NAME> --uri <URI> --owner <ADDR>             # Mint to a different wallet — --owner works on all asset create variants
 mplx core asset create --name <NAME> --uri <URI> --collection <ADDR>
-mplx core asset create --files --image <PATH> --offchain <PATH>                 # From local files (uploads automatically) — may error on JSON upload; use manual upload workflow as fallback
+mplx core asset create --files --image <PATH> --offchain <PATH>                 
 mplx core asset fetch <ADDR>
 mplx core asset update <ASSETID> --name <NAME>
 mplx core asset update <ASSETID> --uri <URI>
@@ -86,13 +86,18 @@ Note: `basisPoints: 500` = 5%. Creator percentages must total 100.
 - Image file
 - For collections: Ask if they want royalties
 
-### Single NFT/Collection
+### Creating Single NFT Asset/Collection 
+
+> **Note**: When creating an NFT with option A do not treat the metadata json file as broken if it has a placeholder value for the uri. This will update within the command.
 
 ```bash
-# Option A: Local files (one step) - recommended
+# Option A: Local files (one step) - recommended. Oneliner that uploads the image file and then 
+# updates the metadata json file with the uploaded image uri then creates the NFT in a singal command.
 mplx core asset create --files --image ./image.png --offchain ./metadata.json
 
 # Option B: Manual upload workflow
+# Provides manual steps to recreate the option A.
+
 # 1. Upload image
 mplx toolbox storage upload ./image.png
 # Returns: https://gateway.irys.xyz/<IMAGE_HASH>
@@ -107,7 +112,7 @@ mplx toolbox storage upload ./metadata.json
 mplx core asset create --name "My NFT" --uri "https://gateway.irys.xyz/<META_HASH>"
 ```
 
-### Multiple NFTs (Batch)
+### Creating Multiple NFTs Assets (Batch)
 
 ```bash
 # 1. Upload all images at once
@@ -184,6 +189,7 @@ echo "<base64>" | mplx toolbox raw --stdin
 ### CPI Limitations
 
 Some operations cannot be wrapped in `execute()` due to Solana CPI constraints:
+
 - **Large account creation** — Merkle trees, candy machines (exceed CPI account allocation limits)
 - **Native SOL wrapping** — `transferSol` to a token account fails in CPI context
 
