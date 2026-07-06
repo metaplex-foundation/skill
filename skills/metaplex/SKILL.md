@@ -133,6 +133,10 @@ Always use **Token Metadata**. Read `./references/cli-toolbox.md` for CLI comman
 
 Use **Core Candy Machine**. Read `./references/cli.md` + `./references/cli-candy-machine.md`.
 
+### App Mints into a Core Collection WITHOUT Candy Machine
+
+Creating an asset into a Core collection requires the collection's update authority (or an `UpdateDelegate`) to sign — a user's wallet can't, and the authority key must never be in a frontend. The app needs either a custom on-chain program (PDA granted `UpdateDelegate`, mint logic in the program) or a backend/API holding a delegate keypair that signs mints. Read the "Minting into a Collection from an App" section in `./references/sdk-core.md` before designing the minting flow.
+
 ### Asset as Agent / Vault / Wallet (Execute)
 
 Use **Core Execute** when an asset (NFT, agent, vault) needs to hold SOL/tokens, transfer funds, sign transactions, or own other assets. Every Core asset has a signer PDA that can act as an autonomous wallet. Read `./references/cli-core.md` (CLI) or `./references/sdk-core.md` (SDK), execute section.

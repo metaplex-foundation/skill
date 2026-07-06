@@ -79,6 +79,8 @@ await create(umi, {
 
 > The `create` helper requires a collection **object** (from `fetchCollection` or `createCollection`'s signer), not a bare public key. Passing `collection.publicKey` silently creates the asset without a collection association.
 
+> **Authority requirement**: Creating an asset into a collection must be signed by the collection's **update authority** or an approved **UpdateDelegate** (`create`'s `authority` param, defaults to `umi.identity`). A random user's wallet cannot mint into your collection. Before building any user-facing mint flow, read [Minting into a Collection from an App](#minting-into-a-collection-from-an-app-no-candy-machine) below.
+
 ## Create Asset with Plugins (Single Step)
 
 ```typescript
@@ -98,6 +100,83 @@ await create(umi, {
   ],
 }).sendAndConfirm(umi);
 ```
+
+## Minting into a Collection from an App (No Candy Machine)
+
+Every asset created **into a collection** must have the transaction signed by the collection's **update authority** or an **UpdateDelegate** of the collection. This has a critical consequence for app architecture: the minting user's wallet can never be that signer, and the authority keypair must **never be shipped to or reachable from the frontend**. So "let users mint into my collection" always requires one of these architectures — pick one BEFORE writing minting code:
+
+| Architecture | Where the authority lives | Choose when |
+|---|---|---|
+| **Core Candy Machine** | Candy machine PDA is granted the delegate automatically | Standard drop mechanics fit: fixed/tiered price, allowlists, start dates, supply limits. See `./cli-candy-machine.md` |
+| **Custom on-chain program** | A PDA of your program, granted `UpdateDelegate` on the collection; the program CPIs Core's `create` and the PDA signs via `invoke_signed` | Custom mint logic that must be trustless/on-chain (dynamic pricing, game state, on-chain conditions). Mint logic lives in this program too |
+| **Backend / API server** | A dedicated delegate keypair in server env vars or KMS, granted `UpdateDelegate` on the collection; backend JS signs the mint | Off-chain gating (user accounts, web2 payments, custom business rules) and you don't want to write a Solana program |
+
+Core Candy Machine **is** the on-chain-program option pre-built — prefer it unless the requirements genuinely don't fit. If assets don't strictly need on-chain collection membership (grouping/attributes only), consider whether a collection is needed at all — a collectionless mint has no authority constraint.
+
+### Step 1 — Grant UpdateDelegate on the collection (one-time setup)
+
+Run from a safe context (local script/CLI) signed by the collection's update authority. The delegate is your program's PDA (architecture 2) or your backend keypair's public key (architecture 3):
+
+```typescript
+import { addCollectionPlugin } from '@metaplex-foundation/mpl-core';
+
+await addCollectionPlugin(umi, {
+  collection: collectionAddress,
+  plugin: {
+    type: 'UpdateDelegate',
+    additionalDelegates: [],
+    authority: { type: 'Address', address: delegateAddress },
+  },
+}).sendAndConfirm(umi);
+```
+
+> To authorize several minters, put extra addresses in `additionalDelegates` — they get the same create-into-collection power without holding the plugin authority itself.
+
+### Step 2a — Backend minting (delegate signs as authority)
+
+Server-side only — the delegate keypair is loaded from env/KMS and never appears in frontend code:
+
+```typescript
+import { create, fetchCollection } from '@metaplex-foundation/mpl-core';
+
+const collection = await fetchCollection(umi, collectionAddress);
+
+await create(umi, {
+  asset: generateSigner(umi),
+  collection,
+  authority: delegateSigner,  // the UpdateDelegate — authorizes creation into the collection
+  owner: userPublicKey,       // mint straight to the user's wallet
+  name: 'Asset #1',
+  uri: 'https://arweave.net/xxx',
+}).sendAndConfirm(umi);
+```
+
+If the **user** should pay for the mint, don't send server-side: build the transaction on the backend, partially sign it with the delegate (and the new asset signer), serialize it, and return it to the frontend where the user's wallet signs as fee payer and submits.
+
+### Step 2b — On-chain program minting (PDA signs via CPI)
+
+Your program derives an authority PDA (granted `UpdateDelegate` in step 1) and CPIs into MPL Core inside your mint instruction — payment, supply caps, and eligibility checks live in the same instruction:
+
+```rust
+use mpl_core::instructions::CreateV2CpiBuilder;
+
+CreateV2CpiBuilder::new(&ctx.accounts.mpl_core_program)
+    .asset(&ctx.accounts.asset)
+    .collection(Some(&ctx.accounts.collection))
+    .authority(Some(&ctx.accounts.mint_authority_pda)) // program PDA holding UpdateDelegate
+    .payer(&ctx.accounts.payer)
+    .owner(Some(&ctx.accounts.payer))
+    .system_program(&ctx.accounts.system_program)
+    .name(name)
+    .uri(uri)
+    .invoke_signed(&[&[b"mint_authority", &[ctx.bumps.mint_authority_pda]]])?;
+```
+
+### What NOT to do
+
+- **Never** embed the collection update authority (or any delegate) secret key in frontend code, mobile bundles, or public repos — anyone extracting it can mint into and modify your collection.
+- **Don't** have the frontend sign `create` with the user's wallet and expect collection membership to work — it fails with an authority error (`InvalidAuthority`/`NoApprovals`) unless that wallet happens to be the authority.
+- **Don't** hand out the update authority keypair itself to a backend when a scoped `UpdateDelegate` will do — a delegate can be revoked with `revokeCollectionPluginAuthority` if the server key leaks; a leaked update authority is unrecoverable.
 
 ## Update Asset
 
