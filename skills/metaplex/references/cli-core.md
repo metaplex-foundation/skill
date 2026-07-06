@@ -33,6 +33,8 @@ mplx core collection template                                               # Ge
 mplx core asset execute info <ASSETID>                                      # Show signer PDA address and SOL balance
 ```
 
+> **Collection authority**: `asset create --collection` works from the CLI because the configured wallet is the collection's update authority. This does NOT translate to apps — end users' wallets can't sign assets into your collection, and the authority key must never live in a frontend. If the user is building an app that mints into a collection (and isn't using Candy Machine), read the "Minting into a Collection from an App" section in `./sdk-core.md` before designing anything.
+
 ---
 
 ## Core Plugins
