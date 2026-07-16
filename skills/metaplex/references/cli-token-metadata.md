@@ -57,3 +57,17 @@ mplx tm create --name "NFT #2" --uri "<URI_2>" --collection <COLLECTION_MINT>
 ```
 
 > **Collection verification**: Unlike Core (which auto-verifies), TM collection items start **unverified**. The CLI handles verification automatically during `mplx tm create --collection`, but if you're building with the SDK you must call `verifyCollectionV1` separately (see `./sdk-token-metadata.md`).
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Token Metadata overview: https://metaplex.com/docs/smart-contracts/token-metadata
+- Mint: https://metaplex.com/docs/smart-contracts/token-metadata/mint
+- Transfer: https://metaplex.com/docs/smart-contracts/token-metadata/transfer
+- Update: https://metaplex.com/docs/smart-contracts/token-metadata/update
+- pNFTs: https://metaplex.com/docs/smart-contracts/token-metadata/pnfts
+- Collections: https://metaplex.com/docs/smart-contracts/token-metadata/collections
+- Create an NFT: https://metaplex.com/docs/nfts/create-nft
+- Transfer an NFT: https://metaplex.com/docs/nfts/transfer-nft
+- Update an NFT: https://metaplex.com/docs/nfts/update-nft

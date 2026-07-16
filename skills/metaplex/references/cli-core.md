@@ -196,3 +196,24 @@ Some operations cannot be wrapped in `execute()` due to Solana CPI constraints:
 - **Native SOL wrapping** — `transferSol` to a token account fails in CPI context
 
 For these, use a normal wallet to create the infrastructure first, then switch to the asset-signer wallet for subsequent operations.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Core overview: https://metaplex.com/docs/smart-contracts/core
+- Create asset: https://metaplex.com/docs/smart-contracts/core/create-asset
+- Collections: https://metaplex.com/docs/smart-contracts/core/collections
+- Transfer: https://metaplex.com/docs/smart-contracts/core/transfer
+- Update: https://metaplex.com/docs/smart-contracts/core/update
+- Burn: https://metaplex.com/docs/smart-contracts/core/burn
+- Fetch: https://metaplex.com/docs/smart-contracts/core/fetch
+- Plugins: https://metaplex.com/docs/smart-contracts/core/plugins
+- Update delegate (app minting): https://metaplex.com/docs/smart-contracts/core/plugins/update-delegate
+- Execute / asset signing: https://metaplex.com/docs/smart-contracts/core/execute-asset-signing
+- CLI create asset: https://metaplex.com/docs/dev-tools/cli/core/create-asset
+- CLI create collection: https://metaplex.com/docs/dev-tools/cli/core/create-collection
+- CLI transfer: https://metaplex.com/docs/dev-tools/cli/core/transfer-asset
+- CLI update: https://metaplex.com/docs/dev-tools/cli/core/update-asset
+- CLI plugins: https://metaplex.com/docs/dev-tools/cli/core/plugins
+- CLI execute: https://metaplex.com/docs/dev-tools/cli/core/execute

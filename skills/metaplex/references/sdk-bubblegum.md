@@ -3,7 +3,6 @@
 Umi SDK operations for creating and managing compressed NFTs (cNFTs).
 
 > **Prerequisites**: Set up Umi first — see `./sdk-umi.md` for installation and basic setup.
-> **Docs**: https://metaplex.com/docs/smart-contracts/bubblegum-v2
 
 ---
 
@@ -346,3 +345,21 @@ These are set on the Core collection and apply to all cNFTs in it.
 | **Token Metadata** | ~0.022 SOL | 3-4 | Fungibles, legacy |
 
 Bubblegum is ~98% cheaper than Token Metadata and ~90% cheaper than Core at scale. The trade-off is that cNFT operations require DAS API access for proof fetching.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Bubblegum V2 overview: https://metaplex.com/docs/smart-contracts/bubblegum-v2
+- Create trees: https://metaplex.com/docs/smart-contracts/bubblegum-v2/create-trees
+- Mint cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/mint-cnfts
+- Transfer cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/transfer-cnfts
+- Update cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/update-cnfts
+- Burn cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/burn-cnfts
+- Fetch cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/fetch-cnfts
+- Freeze cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/freeze-cnfts
+- Collections: https://metaplex.com/docs/smart-contracts/bubblegum-v2/collections
+- Delegate cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/delegate-cnfts
+- Verify creators: https://metaplex.com/docs/smart-contracts/bubblegum-v2/verify-creators
+- JavaScript SDK: https://metaplex.com/docs/smart-contracts/bubblegum-v2/sdk/javascript
+- DAS API: https://metaplex.com/docs/dev-tools/das-api

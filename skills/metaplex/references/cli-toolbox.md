@@ -66,3 +66,20 @@ mplx toolbox token add-metadata <MINT> --name <NAME> --symbol <SYM> --image <PAT
 - `--mint-amount`, `mplx toolbox token mint`, and `mplx toolbox token transfer` amounts are all in **base units** (smallest denomination). E.g., with 9 decimals, `--mint-amount 1000000000` mints 1 token. Tokens are minted to the payer wallet by default (use `mplx toolbox token mint <MINT> <AMOUNT> --recipient <ADDR>` for another wallet).
 - `--decimals 9` is the standard for Solana tokens. Use 9 unless the user specifies otherwise.
 - `mplx toolbox token mint` and `mplx toolbox token transfer` may fail on localnet if the mpl-toolbox program is not deployed. On localnet, use `spl-token mint` and `spl-token transfer` as fallbacks.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Create a token: https://metaplex.com/docs/tokens/create-a-token
+- Mint tokens: https://metaplex.com/docs/tokens/mint-tokens
+- Transfer a token: https://metaplex.com/docs/tokens/transfer-a-token
+- Update token: https://metaplex.com/docs/tokens/update-token
+- CLI token create: https://metaplex.com/docs/dev-tools/cli/toolbox/token-create
+- CLI token mint: https://metaplex.com/docs/dev-tools/cli/toolbox/token-mint
+- CLI token transfer: https://metaplex.com/docs/dev-tools/cli/toolbox/token-transfer
+- CLI add metadata: https://metaplex.com/docs/dev-tools/cli/toolbox/add-metadata-to-token
+- CLI update token metadata: https://metaplex.com/docs/dev-tools/cli/toolbox/update-token-metadata
+- Storage upload: https://metaplex.com/docs/dev-tools/cli/toolbox/storage-upload
+- SOL airdrop: https://metaplex.com/docs/dev-tools/cli/toolbox/sol-airdrop
+- SOL transfer: https://metaplex.com/docs/dev-tools/cli/toolbox/sol-transfer

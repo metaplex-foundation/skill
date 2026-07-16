@@ -185,3 +185,18 @@ try {
   throw error;
 }
 ```
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Umi overview: https://metaplex.com/docs/dev-tools/umi
+- Getting started: https://metaplex.com/docs/dev-tools/umi/getting-started
+- Plugins: https://metaplex.com/docs/dev-tools/umi/plugins
+- Metaplex Umi plugins: https://metaplex.com/docs/dev-tools/umi/metaplex-umi-plugins
+- Public keys and signers: https://metaplex.com/docs/dev-tools/umi/public-keys-and-signers
+- Transactions: https://metaplex.com/docs/dev-tools/umi/transactions
+- Storage: https://metaplex.com/docs/dev-tools/umi/storage
+- RPC: https://metaplex.com/docs/dev-tools/umi/rpc
+- DAS API: https://metaplex.com/docs/dev-tools/das-api
+- DAS getting started: https://metaplex.com/docs/dev-tools/das-api/getting-started

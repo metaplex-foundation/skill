@@ -3,7 +3,6 @@
 Commands for registering agent identities and delegating execution via the `mplx` CLI.
 
 > **Prerequisites**: CLI must be configured (RPC, keypair, funded wallet). If not yet verified this session, see `./cli-initial-setup.md`.
-> **Docs**: https://metaplex.com/docs/agents
 
 ---
 
@@ -204,3 +203,20 @@ When using `--use-ix`, the `--name`/`--from-file`/`--wizard` flags produce an [E
 
 Service types: `web`, `A2A`, `MCP`, `OASF`, `DID`, `email`, or custom.
 Trust models: `reputation`, `crypto-economic`, `tee-attestation`.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Agents overview: https://metaplex.com/docs/agents
+- What is an agent: https://metaplex.com/docs/agents/what-is-an-agent
+- Register an agent: https://metaplex.com/docs/agents/register-agent
+- Mint agent: https://metaplex.com/docs/agents/mint-agent
+- Create agent token: https://metaplex.com/docs/agents/create-agent-token
+- Read agent data: https://metaplex.com/docs/agents/read-agent-data
+- Run an agent: https://metaplex.com/docs/agents/run-an-agent
+- CLI agents: https://metaplex.com/docs/dev-tools/cli/agents
+- CLI register: https://metaplex.com/docs/dev-tools/cli/agents/register
+- CLI executive (delegate/revoke): https://metaplex.com/docs/dev-tools/cli/agents/executive
+- CLI set agent token: https://metaplex.com/docs/dev-tools/cli/agents/set-agent-token
+- Execute / asset signing: https://metaplex.com/docs/smart-contracts/core/execute-asset-signing

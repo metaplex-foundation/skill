@@ -27,3 +27,11 @@ When running on localhost/localnet, several CLI features are unavailable or requ
 | `InsufficientFunds` | Fund wallet with more SOL |
 | `Invalid data enum variant` | Check plugin JSON format (array, correct types) |
 | Upload fails / timeout | Check `mplx toolbox storage balance`, fund if needed |
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- CLI overview: https://metaplex.com/docs/dev-tools/cli
+- Installation / setup: https://metaplex.com/docs/dev-tools/cli/installation
+- RPCs: https://metaplex.com/docs/dev-tools/cli/config/rpcs
