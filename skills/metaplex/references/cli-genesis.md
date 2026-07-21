@@ -4,7 +4,6 @@ Commands for creating and managing token launches (TGEs) via the `mplx` CLI.
 
 > **Prerequisites**: CLI must be configured (RPC, keypair, funded wallet). If not yet verified this session, see `./cli-initial-setup.md`.
 > **Concepts**: For lifecycle, fees, condition objects, and end behaviors, see `./concepts.md` Genesis section.
-> **Docs**: https://metaplex.com/docs/smart-contracts/genesis
 
 ---
 
@@ -560,3 +559,22 @@ mplx genesis claim-unlocked <GENESIS>
 - **`--agentMint`** auto-derives the creator fee wallet from the agent's Core asset signer PDA (`['mpl-core-execute', <agent_mint>]`). The first buy buyer also defaults to the agent PDA.
 - **`--firstBuyAmount`** is fee-free (no protocol or creator fee) and is executed as part of the launch transaction. Only applies to bonding curve launches.
 - **`--agentMint` RPC propagation**: The Genesis API verifies agent ownership on-chain. Its backend may lag behind the CLI's RPC after a fresh agent registration. If the error says "Agent is not owned", the on-chain launch may still have succeeded — check with `agents fetch`. If the agent already has a token set, only the platform registration failed; complete it with `genesis launch register`. When scripting, add a ~30 second delay between `agents register` and `genesis launch create`.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Genesis overview: https://metaplex.com/docs/smart-contracts/genesis
+- Getting started: https://metaplex.com/docs/smart-contracts/genesis/getting-started
+- Launch pool: https://metaplex.com/docs/smart-contracts/genesis/launch-pool
+- Bonding curve: https://metaplex.com/docs/smart-contracts/genesis/bonding-curve
+- Bonding curve launch: https://metaplex.com/docs/smart-contracts/genesis/bonding-curve-launch
+- Bonding curve swaps: https://metaplex.com/docs/smart-contracts/genesis/bonding-curve-swaps
+- Presale: https://metaplex.com/docs/smart-contracts/genesis/presale
+- Creator fees: https://metaplex.com/docs/smart-contracts/genesis/creator-fees
+- Create agent token: https://metaplex.com/docs/agents/create-agent-token
+- CLI Genesis: https://metaplex.com/docs/dev-tools/cli/genesis
+- CLI launch: https://metaplex.com/docs/dev-tools/cli/genesis/launch
+- CLI bonding curve: https://metaplex.com/docs/dev-tools/cli/genesis/bonding-curve
+- CLI launch pool: https://metaplex.com/docs/dev-tools/cli/genesis/launch-pool
+- Protocol fees: https://metaplex.com/docs/protocol-fees

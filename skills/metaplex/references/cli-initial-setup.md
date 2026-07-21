@@ -64,3 +64,12 @@ mplx config get rpcUrl && mplx config get keypair && mplx toolbox sol balance
 - **`0 SOL`** — Airdrop on devnet: `mplx toolbox sol airdrop --amount 2` (devnet only)
 
 > **Mainnet Safety:** If RPC URL contains `mainnet`, confirm with user before executing commands that spend SOL.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- CLI installation: https://metaplex.com/docs/dev-tools/cli/installation
+- CLI overview: https://metaplex.com/docs/dev-tools/cli
+- RPCs: https://metaplex.com/docs/dev-tools/cli/config/rpcs
+- Wallets: https://metaplex.com/docs/dev-tools/cli/config/wallets

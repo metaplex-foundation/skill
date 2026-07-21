@@ -333,3 +333,18 @@ Genesis tokens default to 9 decimals. Supply is specified in base units:
 | 1 token | `1_000_000_000n` |
 | 1,000,000 tokens | `1_000_000_000_000_000n` |
 | 1,000,000,000 tokens | `1_000_000_000_000_000_000n` |
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Core vs Token Metadata: https://metaplex.com/docs/smart-contracts/core/tm-differences
+- What is a Core asset: https://metaplex.com/docs/smart-contracts/core/what-is-an-asset
+- Core plugins: https://metaplex.com/docs/smart-contracts/core/plugins
+- Token standards: https://metaplex.com/docs/smart-contracts/token-metadata/token-standard
+- Agents overview: https://metaplex.com/docs/agents
+- MPL Agent identity: https://metaplex.com/docs/smart-contracts/mpl-agent/identity
+- Genesis overview: https://metaplex.com/docs/smart-contracts/genesis
+- Launch pool: https://metaplex.com/docs/smart-contracts/genesis/launch-pool
+- Bonding curve: https://metaplex.com/docs/smart-contracts/genesis/bonding-curve
+- Protocol fees: https://metaplex.com/docs/protocol-fees

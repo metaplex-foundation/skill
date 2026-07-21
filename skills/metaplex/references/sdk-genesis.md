@@ -658,6 +658,19 @@ await closeToken(umi, {
 Genesis: GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
 ```
 
-## Documentation
+## For more info
 
-Full documentation: https://metaplex.com/docs/smart-contracts/genesis
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Genesis overview: https://metaplex.com/docs/smart-contracts/genesis
+- Getting started: https://metaplex.com/docs/smart-contracts/genesis/getting-started
+- Launch pool: https://metaplex.com/docs/smart-contracts/genesis/launch-pool
+- Bonding curve: https://metaplex.com/docs/smart-contracts/genesis/bonding-curve
+- Bonding curve launch: https://metaplex.com/docs/smart-contracts/genesis/bonding-curve-launch
+- Bonding curve swaps: https://metaplex.com/docs/smart-contracts/genesis/bonding-curve-swaps
+- Creator fees: https://metaplex.com/docs/smart-contracts/genesis/creator-fees
+- Locked LP tokens: https://metaplex.com/docs/smart-contracts/genesis/locked-lp-tokens
+- Create agent token: https://metaplex.com/docs/agents/create-agent-token
+- JavaScript SDK: https://metaplex.com/docs/smart-contracts/genesis/sdk/javascript
+- API client: https://metaplex.com/docs/smart-contracts/genesis/sdk/api-client
+- Protocol fees: https://metaplex.com/docs/protocol-fees

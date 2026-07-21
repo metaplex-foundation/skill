@@ -343,3 +343,19 @@ With this cache in place, you can proceed directly to `mplx cm create` and `mplx
 5. **Add at least one guard** (otherwise anyone can mint for free)
 6. **Save explorer links** for verification
 7. **Back up cm-config.json** after creation
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Core Candy Machine: https://metaplex.com/docs/smart-contracts/core-candy-machine
+- Overview: https://metaplex.com/docs/smart-contracts/core-candy-machine/overview
+- Create: https://metaplex.com/docs/smart-contracts/core-candy-machine/create
+- Insert items: https://metaplex.com/docs/smart-contracts/core-candy-machine/insert-items
+- Guards: https://metaplex.com/docs/smart-contracts/core-candy-machine/guards
+- Guard groups: https://metaplex.com/docs/smart-contracts/core-candy-machine/guard-groups
+- Mint: https://metaplex.com/docs/smart-contracts/core-candy-machine/mint
+- Preparing assets: https://metaplex.com/docs/smart-contracts/core-candy-machine/preparing-assets
+- Withdrawing: https://metaplex.com/docs/smart-contracts/core-candy-machine/withdrawing-a-candy-machine
+- Anti-bot best practices: https://metaplex.com/docs/smart-contracts/core-candy-machine/anti-bot-protection-best-practices
+- CLI Candy Machine: https://metaplex.com/docs/dev-tools/cli/cm

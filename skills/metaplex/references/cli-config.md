@@ -37,3 +37,13 @@ mplx config storage                      # Set active storage provider from avai
 ```bash
 mplx config explorer                     # Set preferred blockchain explorer
 ```
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- CLI overview: https://metaplex.com/docs/dev-tools/cli
+- RPCs: https://metaplex.com/docs/dev-tools/cli/config/rpcs
+- Wallets: https://metaplex.com/docs/dev-tools/cli/config/wallets
+- Asset-signer wallets: https://metaplex.com/docs/dev-tools/cli/config/asset-signer-wallets
+- Explorer: https://metaplex.com/docs/dev-tools/cli/config/explorer

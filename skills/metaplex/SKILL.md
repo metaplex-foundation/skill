@@ -141,12 +141,20 @@ Creating an asset into a Core collection requires the collection's update author
 
 Use **Core Execute** when an asset (NFT, agent, vault) needs to hold SOL/tokens, transfer funds, sign transactions, or own other assets. Every Core asset has a signer PDA that can act as an autonomous wallet. Read `./references/cli-core.md` (CLI) or `./references/sdk-core.md` (SDK), execute section.
 
-## External Resources
+## For more info
 
-- Documentation: https://metaplex.com/docs
+When a task needs deeper detail than the skill references provide (edge cases, full API surfaces, guides), consult the Metaplex docs:
+
+- Documentation home: https://metaplex.com/docs
 - Agent Registry: https://metaplex.com/docs/agents
 - Genesis: https://metaplex.com/docs/smart-contracts/genesis
 - Core: https://metaplex.com/docs/smart-contracts/core
 - Token Metadata: https://metaplex.com/docs/smart-contracts/token-metadata
 - Bubblegum: https://metaplex.com/docs/smart-contracts/bubblegum-v2
 - Candy Machine: https://metaplex.com/docs/smart-contracts/core-candy-machine
+- Tokens: https://metaplex.com/docs/tokens
+- NFTs: https://metaplex.com/docs/nfts
+- CLI: https://metaplex.com/docs/dev-tools/cli
+- Umi SDK: https://metaplex.com/docs/dev-tools/umi
+- DAS API: https://metaplex.com/docs/dev-tools/das-api
+- Protocol fees: https://metaplex.com/docs/protocol-fees

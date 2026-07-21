@@ -135,3 +135,14 @@ https://explorer.solana.com/tx/<SIGNATURE>                 # Mainnet
 
 > **Localnet note**: The CLI generates devnet explorer links even when connected to localhost. For localnet, use Solana Explorer with a custom cluster URL: `https://explorer.solana.com/address/<ADDRESS>?cluster=custom&customUrl=http://localhost:8899`
 
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- CLI overview: https://metaplex.com/docs/dev-tools/cli
+- Installation: https://metaplex.com/docs/dev-tools/cli/installation
+- Core CLI: https://metaplex.com/docs/dev-tools/cli/core/create-asset
+- Agents CLI: https://metaplex.com/docs/dev-tools/cli/agents
+- Genesis CLI: https://metaplex.com/docs/dev-tools/cli/genesis
+- Bubblegum CLI: https://metaplex.com/docs/dev-tools/cli/bubblegum
+- Candy Machine CLI: https://metaplex.com/docs/dev-tools/cli/cm

@@ -124,3 +124,19 @@ Bubblegum V2: BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
 | **Token Metadata** | ~0.022 SOL | 3-4 | Fungibles, legacy |
 
 Bubblegum is ~98% cheaper than Token Metadata and ~90% cheaper than Core at scale. The trade-off is that cNFT operations require DAS API access for proof fetching.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Bubblegum V2 overview: https://metaplex.com/docs/smart-contracts/bubblegum-v2
+- Create trees: https://metaplex.com/docs/smart-contracts/bubblegum-v2/create-trees
+- Mint cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/mint-cnfts
+- Transfer cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/transfer-cnfts
+- Update cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/update-cnfts
+- Burn cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/burn-cnfts
+- Fetch cNFTs: https://metaplex.com/docs/smart-contracts/bubblegum-v2/fetch-cnfts
+- Collections: https://metaplex.com/docs/smart-contracts/bubblegum-v2/collections
+- Concurrent merkle trees: https://metaplex.com/docs/smart-contracts/bubblegum-v2/concurrent-merkle-trees
+- CLI Bubblegum: https://metaplex.com/docs/dev-tools/cli/bubblegum
+- DAS API: https://metaplex.com/docs/dev-tools/das-api

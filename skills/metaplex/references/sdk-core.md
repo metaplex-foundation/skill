@@ -3,8 +3,7 @@
 Umi SDK operations for creating and managing Core NFTs and collections.
 
 > **Prerequisites**: Set up Umi first — see `./sdk-umi.md` for installation and basic setup.
-> **Docs**: https://metaplex.com/docs/smart-contracts/core
-
+>
 > **Important**: When passing plugins, use the helper functions (`create`, `createCollection`, `addPlugin`, `addCollectionPlugin`, `updatePlugin`, `removePlugin`). The raw generated functions (`createV1`, `addPluginV1`, etc.) expect a different internal plugin format and will error with the friendly `{ type: 'Royalties', ... }` syntax.
 
 > **Fetch-first pattern**: The helpers `update`, `burn`, `freezeAsset`, `thawAsset` require a **fetched** asset object (from `fetchAsset`), not just an address. This is because they automatically derive external plugin adapter accounts.
@@ -584,3 +583,24 @@ Core uses a **single-account model** — asset and collection addresses are the 
 - Core collections are also direct accounts (not PDAs like TM's Metadata/MasterEdition).
 
 This differs from Token Metadata, where you derive Metadata, MasterEdition, and TokenRecord PDAs from a mint address.
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Core overview: https://metaplex.com/docs/smart-contracts/core
+- Create asset: https://metaplex.com/docs/smart-contracts/core/create-asset
+- Collections: https://metaplex.com/docs/smart-contracts/core/collections
+- Transfer: https://metaplex.com/docs/smart-contracts/core/transfer
+- Update: https://metaplex.com/docs/smart-contracts/core/update
+- Burn: https://metaplex.com/docs/smart-contracts/core/burn
+- Fetch: https://metaplex.com/docs/smart-contracts/core/fetch
+- Plugins: https://metaplex.com/docs/smart-contracts/core/plugins
+- Adding plugins: https://metaplex.com/docs/smart-contracts/core/plugins/adding-plugins
+- Update delegate (app minting): https://metaplex.com/docs/smart-contracts/core/plugins/update-delegate
+- Freeze delegate (soulbound): https://metaplex.com/docs/smart-contracts/core/plugins/freeze-delegate
+- Royalties: https://metaplex.com/docs/smart-contracts/core/plugins/royalties
+- Execute / asset signing: https://metaplex.com/docs/smart-contracts/core/execute-asset-signing
+- JavaScript SDK: https://metaplex.com/docs/smart-contracts/core/sdk/javascript
+- JSON schema: https://metaplex.com/docs/smart-contracts/core/json-schema
+- Core vs Token Metadata: https://metaplex.com/docs/smart-contracts/core/tm-differences

@@ -53,3 +53,12 @@
   "image": "TOKEN_IMAGE_URL"
 }
 ```
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Core JSON schema: https://metaplex.com/docs/smart-contracts/core/json-schema
+- Preparing Candy Machine assets: https://metaplex.com/docs/smart-contracts/core-candy-machine/preparing-assets
+- Create an NFT: https://metaplex.com/docs/nfts/create-nft
+- Create a token (fungible metadata): https://metaplex.com/docs/tokens/create-a-token

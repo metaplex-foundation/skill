@@ -261,3 +261,15 @@ const kitAddress = toKitAddress(umiPublicKey);
 const kitIx = toKitInstruction(umiInstruction);
 const umiIx = fromKitInstruction(kitInstruction);
 ```
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Getting started (Kit): https://metaplex.com/docs/smart-contracts/token-metadata/getting-started/kit
+- Token Metadata overview: https://metaplex.com/docs/smart-contracts/token-metadata
+- Mint: https://metaplex.com/docs/smart-contracts/token-metadata/mint
+- Transfer: https://metaplex.com/docs/smart-contracts/token-metadata/transfer
+- Fetch: https://metaplex.com/docs/smart-contracts/token-metadata/fetch
+- Update: https://metaplex.com/docs/smart-contracts/token-metadata/update
+- Umi Kit adapters: https://metaplex.com/docs/dev-tools/umi/kit-adapters

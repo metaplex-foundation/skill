@@ -3,8 +3,7 @@
 Umi SDK operations for registering agent identities, reading agent data, and delegating execution.
 
 > **Prerequisites**: Set up Umi first — see `./sdk-umi.md` for installation and basic setup.
-> **Docs**: https://metaplex.com/docs/agents
-
+>
 > **Agents are MPL Core assets.** Before registering an agent, you need an MPL Core asset. See `./sdk-core.md` for creating assets and collections.
 
 ---
@@ -577,3 +576,20 @@ Same addresses on Mainnet and Devnet.
 | 11 | `InvalidExecutiveProfileDerivation` | Executive profile PDA derivation mismatch |
 | 12 | `ExecutionDelegateRecordMustBeInitialized` | Delegation record does not exist or is not initialized |
 | 13 | `UnauthorizedRevoke` | Signer is not the asset owner or the executive authority |
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Agents overview: https://metaplex.com/docs/agents
+- What is an agent: https://metaplex.com/docs/agents/what-is-an-agent
+- Mint agent: https://metaplex.com/docs/agents/mint-agent
+- Register an agent: https://metaplex.com/docs/agents/register-agent
+- Create agent token: https://metaplex.com/docs/agents/create-agent-token
+- Read agent data: https://metaplex.com/docs/agents/read-agent-data
+- Run an agent: https://metaplex.com/docs/agents/run-an-agent
+- Agent onboarding: https://metaplex.com/docs/agents/agent-onboarding
+- MPL Agent program: https://metaplex.com/docs/smart-contracts/mpl-agent
+- Identity: https://metaplex.com/docs/smart-contracts/mpl-agent/identity
+- Tools: https://metaplex.com/docs/smart-contracts/mpl-agent/tools
+- Execute / asset signing: https://metaplex.com/docs/smart-contracts/core/execute-asset-signing

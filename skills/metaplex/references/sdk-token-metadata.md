@@ -3,7 +3,6 @@
 Umi SDK operations for creating and managing Token Metadata NFTs, pNFTs, and fungible tokens.
 
 > **Prerequisites**: Set up Umi first — see `./sdk-umi.md` for installation and basic setup.
-> **Docs**: https://metaplex.com/docs/smart-contracts/token-metadata
 
 ---
 
@@ -457,3 +456,22 @@ const [editionPda] = findMasterEditionPda(umi, { mint });
 // Token Record PDA (pNFTs)
 const [tokenRecordPda] = findTokenRecordPda(umi, { mint, token });
 ```
+
+## For more info
+
+Consult these Metaplex docs when you need deeper detail than this reference provides:
+
+- Token Metadata overview: https://metaplex.com/docs/smart-contracts/token-metadata
+- Mint: https://metaplex.com/docs/smart-contracts/token-metadata/mint
+- Transfer: https://metaplex.com/docs/smart-contracts/token-metadata/transfer
+- Update: https://metaplex.com/docs/smart-contracts/token-metadata/update
+- Burn: https://metaplex.com/docs/smart-contracts/token-metadata/burn
+- Fetch: https://metaplex.com/docs/smart-contracts/token-metadata/fetch
+- Lock: https://metaplex.com/docs/smart-contracts/token-metadata/lock
+- Print editions: https://metaplex.com/docs/smart-contracts/token-metadata/print
+- pNFTs: https://metaplex.com/docs/smart-contracts/token-metadata/pnfts
+- Delegates: https://metaplex.com/docs/smart-contracts/token-metadata/delegates
+- Creators: https://metaplex.com/docs/smart-contracts/token-metadata/creators
+- Collections: https://metaplex.com/docs/smart-contracts/token-metadata/collections
+- Getting started (Umi): https://metaplex.com/docs/smart-contracts/token-metadata/getting-started/umi
+- Create a token: https://metaplex.com/docs/tokens/create-a-token
