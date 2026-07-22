@@ -243,7 +243,20 @@ const ownerAssets = await fetchAssetsByOwner(umi, ownerAddress);
 const collectionAssets = await fetchAssetsByCollection(umi, collectionAddress);
 ```
 
-> `fetchAssetsByOwner` and `fetchAssetsByCollection` use GPA (getProgramAccounts) queries. They may throw deserialization errors if the wallet/collection has burned asset account remnants. For production, prefer DAS API queries (see `./sdk-umi.md` DAS section).
+> `fetchAssetsByOwner` and `fetchAssetsByCollection` use GPA (getProgramAccounts) queries. They may throw deserialization errors if the wallet/collection has burned asset account remnants. For production, prefer DAS via `@metaplex-foundation/mpl-core-das` (see `./sdk-das.md`):
+
+```typescript
+import { dasApi } from '@metaplex-foundation/digital-asset-standard-api';
+import { das } from '@metaplex-foundation/mpl-core-das';
+
+umi.use(dasApi());
+
+const ownerAssets = await das.getAssetsByOwner(umi, { owner: ownerAddress });
+const collectionAssets = await das.getAssetsByCollection(umi, {
+  collection: collectionAddress,
+});
+const groupMembers = await das.getAssetsByGroup(umi, { group: groupAddress });
+```
 
 ## Transfer Asset
 
@@ -579,7 +592,7 @@ await execute(umi, {
 Core uses a **single-account model** — asset and collection addresses are the public keys of the `generateSigner()` used at creation, not PDAs derived from other accounts. This means:
 
 - **No PDA derivation needed** to find an asset. The address returned from `create()` IS the asset address.
-- To look up assets, use `fetchAssetsByOwner`, `fetchAssetsByCollection`, or DAS API queries.
+- To look up assets, prefer `das.getAssetsByOwner` / `das.getAssetsByCollection` / `das.getAssetsByGroup` (see `./sdk-das.md`). GPA helpers (`fetchAssetsByOwner`, `fetchAssetsByCollection`) are fine for small local sets.
 - Core collections are also direct accounts (not PDAs like TM's Metadata/MasterEdition).
 
 This differs from Token Metadata, where you derive Metadata, MasterEdition, and TokenRecord PDAs from a mint address.

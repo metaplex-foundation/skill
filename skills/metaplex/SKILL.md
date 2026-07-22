@@ -4,7 +4,7 @@ description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, c
 license: Apache-2.0
 metadata:
   author: metaplex-foundation
-  version: "0.3.0"
+  version: "0.4.0"
   openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://metaplex.com/docs"}
 ---
 
@@ -48,6 +48,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | CLI: Fungible tokens | `./references/cli.md` + `./references/cli-toolbox.md` |
 | SDK setup (Umi) | `./references/sdk-umi.md` |
 | SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` + `./references/metadata-json.md` |
+| SDK: DAS API (asset queries, Core listing helpers) | `./references/sdk-umi.md` + `./references/sdk-das.md` |
 | SDK: Token Metadata | `./references/sdk-umi.md` + `./references/sdk-token-metadata.md` + `./references/metadata-json.md` |
 | SDK: Compressed NFTs (Bubblegum) | `./references/sdk-umi.md` + `./references/sdk-bubblegum.md` + `./references/metadata-json.md` |
 | SDK: Token Metadata with Kit | `./references/sdk-token-metadata-kit.md` + `./references/metadata-json.md` |
@@ -83,7 +84,7 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 | Compressed NFTs (cNFTs) | ✅ (batch limit ~100, use SDK for larger) |
 | Execute (asset-signer wallets) | ✅ |
 | Check SOL balance / Airdrop | ✅ |
-| Query assets by owner/collection | ❌ SDK only (DAS API) |
+| Query assets by owner/collection/group | ❌ SDK only (DAS API — see `./references/sdk-das.md`) |
 | Token launch (Genesis) | ✅ |
 | Bonding curve swap (Genesis) | ✅ |
 
@@ -104,7 +105,7 @@ Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
 
 ### Autonomous Agents
 
-Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. The **Mint Agent API** (`mintAndSubmitAgent`) is the recommended path — it creates the Core asset and registers identity in a single transaction. For existing assets, use `registerIdentityV1` directly. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Agents can optionally link a Genesis token via `setAgentTokenV1`. Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
+Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. The **Mint Agent API** (`mintAndSubmitAgent`) is the recommended path — it creates the Core asset and registers identity in a single transaction. For existing assets, use `registerIdentityV1` directly. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Agents can optionally link a Genesis token via `setAgentTokenV1`. Discover agents via DAS (`searchAssets({ isAgent: true })` — see `./references/sdk-das.md`). Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
 
 ### Token Launches (Token Generation Event / Fair Launch / Bonding Curve)
 

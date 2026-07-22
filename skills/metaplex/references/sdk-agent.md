@@ -238,6 +238,28 @@ await setAgentTokenV1(umi, {
 
 > The agent token can only be set once. Calling on an identity that already has a token fails with `AgentTokenAlreadySet`.
 
+### Discover Agents via DAS
+
+Registered agents are queryable through the DAS API (requires `dasApi()`). Prefer Core-typed helpers when you need `AssetV1`:
+
+```typescript
+import { dasApi } from '@metaplex-foundation/digital-asset-standard-api';
+import { das } from '@metaplex-foundation/mpl-core-das';
+
+umi.use(dasApi());
+
+const agents = await das.searchAssets(umi, {
+  isAgent: true,
+  // agentToken: genesisMint,       // optional
+  // assetSigner: assetSignerPda,   // optional
+  skipDerivePlugins: true,
+});
+
+// agents[i].is_agent, .agent_token, .asset_signer when indexed
+```
+
+See `./sdk-das.md` for full DAS coverage.
+
 ---
 
 ## Check Registration
