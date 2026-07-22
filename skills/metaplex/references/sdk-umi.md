@@ -14,6 +14,7 @@ Umi is Metaplex's modular JavaScript framework for Solana program clients.
 | `@metaplex-foundation/umi-signer-wallet-adapters` | Wallet adapter integration |
 | `@metaplex-foundation/mpl-toolbox` | SPL token helpers (transfers, compute budget) |
 | `@metaplex-foundation/digital-asset-standard-api` | DAS API (asset queries) |
+| `@metaplex-foundation/mpl-core-das` | Core-typed DAS helpers (`das.*`) |
 
 ## Installation
 
@@ -22,7 +23,8 @@ npm install @metaplex-foundation/umi-bundle-defaults \
   @metaplex-foundation/mpl-core \
   @metaplex-foundation/mpl-token-metadata \
   @metaplex-foundation/mpl-toolbox \
-  @metaplex-foundation/digital-asset-standard-api
+  @metaplex-foundation/digital-asset-standard-api \
+  @metaplex-foundation/mpl-core-das
 # Optional — add if needed:
 #   @metaplex-foundation/umi-uploader-irys (for uploading files)
 #   @metaplex-foundation/umi-signer-wallet-adapters (for browser wallet integration)
@@ -76,6 +78,7 @@ umi.use(keypairIdentity(keypair));
 | Core NFTs | `./sdk-core.md` |
 | Token Metadata | `./sdk-token-metadata.md` |
 | Bubblegum (compressed NFTs) | `./sdk-bubblegum.md` |
+| DAS API (asset queries) | `./sdk-das.md` |
 | Genesis (token launches) | `./sdk-genesis.md` |
 | Token Metadata with Kit | `./sdk-token-metadata-kit.md` |
 
@@ -146,30 +149,35 @@ const metadataUri = await umi.uploader.uploadJson({
 
 ## DAS API (Asset Queries)
 
-> **Important**: DAS API requires a DAS-compatible RPC provider (e.g., Helius, Triton, QuickNode). The default public Solana RPC does **not** support DAS methods.
+> Full method reference: `./sdk-das.md`.
+>
+> **Important**: DAS requires a DAS-compatible RPC (e.g., Helius, Triton, QuickNode). Public Solana RPC does **not** support DAS.
 
 ```typescript
 import { dasApi } from '@metaplex-foundation/digital-asset-standard-api';
+import { das } from '@metaplex-foundation/mpl-core-das';
 
 const umi = createUmi('https://mainnet.helius-rpc.com/?api-key=YOUR_KEY').use(dasApi());
 
-// Single asset by ID
-const asset = await umi.rpc.getAsset(assetId);
-
-// By owner
-const assets = await umi.rpc.getAssetsByOwner({ owner: walletAddress });
-
-// By collection
-const collectionAssets = await umi.rpc.getAssetsByCollection({
-  collection: collectionAddress
+// Core-typed (preferred for Core apps)
+const coreAssets = await das.getAssetsByOwner(umi, { owner: walletAddress });
+const byCollection = await das.getAssetsByCollection(umi, {
+  collection: collectionAddress,
 });
 
-// Search
+// Base DAS (multi-standard / raw shapes)
+const asset = await umi.rpc.getAsset(assetId);
+const byGroup = await umi.rpc.getAssetsByGroup({
+  groupKey: 'collection',
+  groupValue: collectionAddress,
+});
 const results = await umi.rpc.searchAssets({
   owner: walletAddress,
   burnt: false,
 });
 ```
+
+> There is no `umi.rpc.getAssetsByCollection`. Use `das.getAssetsByCollection` (Core) or `umi.rpc.getAssetsByGroup({ groupKey: 'collection', … })` (base DAS).
 
 ---
 
