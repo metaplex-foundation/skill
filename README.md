@@ -1,4 +1,4 @@
-# Metaplex Skill
+git clone https://github.com/metaplex-foundation/skill# Metaplex Skill
 
 An [Agent Skill](https://agentskills.io) for building on [Metaplex](https://metaplex.com/) — the standard infrastructure for NFTs and tokens on Solana.
 
