@@ -171,6 +171,17 @@ const results = await umi.rpc.searchAssets({
 });
 ```
 
+### Inherited Bubblegum V2 royalties
+
+When `asset.royalty.inherited` is true (or `basis_points_raw === 65535`):
+
+- Display / payout: `royalty.basis_points`, `royalty.percent`, `creators`
+- Leaf hashing: `royalty.basis_points_raw`, `creators_raw`
+- Helpers: `isInheritedSfbpRoyalty`, `getRawSellerFeeBasisPoints`, `getResolvedSellerFeeBasisPoints` from this package
+- Bubblegum writes: spread `getAssetWithProof(...)` and pass `currentMetadata: assetWithProof.currentMetadata`. Do not pass display `metadata` into write args when royalties are inherited. Core collection updates also need `authority: collectionAuthority` and `coreCollection`. Raw DAS `_raw` / `inherited` live on `rpcAsset`.
+
+See `./sdk-bubblegum.md` "Mint with Inherited Royalties" and https://metaplex.com/docs/smart-contracts/bubblegum-v2/reading-inherited-royalties
+
 ---
 
 ## Error Handling
