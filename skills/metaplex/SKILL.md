@@ -123,7 +123,7 @@ Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./reference
 
 ### Compressed NFTs (Massive Scale)
 
-Use **Bubblegum** when minting thousands+ of NFTs at minimal cost. See `./references/cli-bubblegum.md` (CLI) or `./references/sdk-bubblegum.md` (SDK). For Bubblegum V2 inherited seller fees (`65535` sentinel + Core collection Royalties plugin), read the "Mint with Inherited Royalties" section in `./references/sdk-bubblegum.md` — DAS main fields are display/payout; leaf hashing and writes use `getAssetWithProof().currentMetadata` (or `asCurrentMetadataV2`), not the display `metadata` field.
+Use **Bubblegum** when minting thousands+ of NFTs at minimal cost. See `./references/cli-bubblegum.md` (CLI) or `./references/sdk-bubblegum.md` (SDK). For Bubblegum V2 inherited seller fees (`65535` sentinel + Core collection Royalties plugin), read the "Mint with Inherited Royalties" section in `./references/sdk-bubblegum.md` — DAS main fields are display/payout; leaf hashing and writes use `getAssetWithProof().currentMetadata`, not the display `metadata` field.
 
 ### Fungible Tokens
 

@@ -121,7 +121,7 @@ DAS puts **collection-resolved** values on main fields and **leaf** values on `_
 |-----|--------|
 | Display / payout UI | `royalty.basis_points`, `royalty.percent`, `creators` |
 | Hashing / proofs / write ix | `royalty.basis_points_raw`, `creators_raw` |
-| Detect inherit | `royalty.inherited === true` or `basis_points_raw === 65535` (also `assetWithProof.inherited`) |
+| Detect inherit | `royalty.inherited === true` or `basis_points_raw === 65535` |
 
 ```typescript
 import {
@@ -139,16 +139,16 @@ if (isInheritedSfbpRoyalty(asset.royalty)) {
 }
 ```
 
-`getAssetWithProof` returns:
+`getAssetWithProof` returns (metadata-related fields):
 
 | Field | Role |
 |-------|------|
 | `metadata` | DAS display (`MetadataArgs`) — resolved rate/payees when inherited. **Do not** pass this as `currentMetadata` / leaf `metadata` on inherited assets. |
-| `currentMetadata` | Leaf-canonical `MetadataArgsV2Args` for write instructions (sentinel `65535` when inherited). Built from `metadata` + `*Raw` siblings via `asCurrentMetadataV2`. |
-| `sellerFeeBasisPointsRaw` / `creatorsRaw` | Optional DAS `_raw` siblings (leaf SFBP / creators) |
-| `inherited` | Sugar for inherit detection |
+| `currentMetadata` | Optional leaf-canonical `MetadataArgsV2Args` for V2 writes (sentinel `65535` when inherited). Omitted for V1. |
+| `rpcAsset` | Raw DAS `getAsset` — `royalty.basis_points_raw`, `creators_raw`, `royalty.inherited` |
+| `rpcAssetProof` | Raw DAS proof |
 
-For writes: spread `...assetWithProof` **and** pass leaf-canonical metadata explicitly — `currentMetadata: assetWithProof.currentMetadata` on `updateMetadataV2`, or `metadata: assetWithProof.currentMetadata` on `setCollectionV2` / `verifyCreatorV2` / `unverifyCreatorV2`. Equivalent conversion: `asCurrentMetadataV2(assetWithProof)` (or `asCurrentMetadata` for V1). Never map display `metadata` onto those args when royalties are inherited.
+For writes: spread `...assetWithProof` **and** pass leaf-canonical metadata explicitly — `currentMetadata: assetWithProof.currentMetadata` on `updateMetadataV2`, or `metadata: assetWithProof.currentMetadata` on `setCollectionV2` / `verifyCreatorV2` / `unverifyCreatorV2`. Never map display `metadata` onto those args when royalties are inherited.
 
 > **Outdated DAS / marketplaces**: Inherited royalties need a DAS indexer that resolves collection rates onto the main fields. On an outdated endpoint, `getAsset` returns the leaf as-is (`basis_points` ≈ `65535`, `creators: []`, no `_raw` / `inherited`). Marketplaces that only trust those DAS fields for payouts may pay creators **nothing**. Prefer an upgraded DAS or read the Core collection Royalties plugin directly. Transfer allow/deny lists (`ProgramAllowList` / `ProgramDenyList`) are separate from payment — Bubblegum does not escrow royalties on transfer.
 
@@ -382,7 +382,7 @@ V2 cNFTs use **MPL Core Collections** (not Token Metadata collections). Create c
 - Royalty enforcement via Core plugins (e.g., `ProgramDenyList`)
 - Collection-level operations and delegates
 
-**Royalties for cNFTs**: Leaf `sellerFeeBasisPoints` is informational for payment. **Enforcement** is the Core collection `Royalties` plugin rule set (`ProgramAllowList` / `ProgramDenyList`) — Bubblegum does not pay creators on transfer. For inherited SFBP (`65535` on the leaf), DAS resolves collection rate/payees onto main fields and exposes leaf values on `_raw`; `getAssetWithProof` puts leaf values on `currentMetadata` (or use `asCurrentMetadataV2`) — see "Mint with Inherited Royalties" above.
+**Royalties for cNFTs**: Leaf `sellerFeeBasisPoints` is informational for payment. **Enforcement** is the Core collection `Royalties` plugin rule set (`ProgramAllowList` / `ProgramDenyList`) — Bubblegum does not pay creators on transfer. For inherited SFBP (`65535` on the leaf), DAS resolves collection rate/payees onto main fields and exposes leaf values on `_raw` / `rpcAsset`; `getAssetWithProof` puts leaf values on `currentMetadata` — see "Mint with Inherited Royalties" above.
 
 ### Soulbound NFTs
 
