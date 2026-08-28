@@ -143,12 +143,12 @@ if (isInheritedSfbpRoyalty(asset.royalty)) {
 
 | Field | Role |
 |-------|------|
-| `metadata` | DAS display (`MetadataArgs`) — resolved rate/payees when inherited |
-| `currentMetadata` | Leaf-canonical `MetadataArgsV2Args` for write instructions (sentinel `65535` when inherited) |
-| `sellerFeeBasisPointsRaw` / `creatorsRaw` | Optional DAS `_raw` siblings |
+| `metadata` | DAS display (`MetadataArgs`) — resolved rate/payees when inherited. **Do not** pass this as `currentMetadata` / leaf `metadata` on inherited assets. |
+| `currentMetadata` | Leaf-canonical `MetadataArgsV2Args` for write instructions (sentinel `65535` when inherited). Built from `metadata` + `*Raw` siblings via `asCurrentMetadataV2`. |
+| `sellerFeeBasisPointsRaw` / `creatorsRaw` | Optional DAS `_raw` siblings (leaf SFBP / creators) |
 | `inherited` | Sugar for inherit detection |
 
-Spread `...assetWithProof` into writes so `currentMetadata` is used. Instructions that take a leaf `metadata` arg (`setCollectionV2`, `verifyCreatorV2`, …) must pass `assetWithProof.currentMetadata` — do **not** pass display `metadata`. Use `asCurrentMetadata` / `asCurrentMetadataV2` only when building leaf metadata outside that helper.
+For writes: spread `...assetWithProof` **and** pass leaf-canonical metadata explicitly — `currentMetadata: assetWithProof.currentMetadata` on `updateMetadataV2`, or `metadata: assetWithProof.currentMetadata` on `setCollectionV2` / `verifyCreatorV2` / `unverifyCreatorV2`. Equivalent conversion: `asCurrentMetadataV2(assetWithProof)` (or `asCurrentMetadata` for V1). Never map display `metadata` onto those args when royalties are inherited.
 
 > **Outdated DAS / marketplaces**: Inherited royalties need a DAS indexer that resolves collection rates onto the main fields. On an outdated endpoint, `getAsset` returns the leaf as-is (`basis_points` ≈ `65535`, `creators: []`, no `_raw` / `inherited`). Marketplaces that only trust those DAS fields for payouts may pay creators **nothing**. Prefer an upgraded DAS or read the Core collection Royalties plugin directly. Transfer allow/deny lists (`ProgramAllowList` / `ProgramDenyList`) are separate from payment — Bubblegum does not escrow royalties on transfer.
 
@@ -181,13 +181,18 @@ const updateArgs: UpdateArgsArgs = {
   uri: some('https://arweave.net/new-uri'),
 };
 
-// Spread includes currentMetadata (leaf-canonical). Do not pass metadata here.
+// Core collection cNFT: collection update authority + coreCollection.
+// currentMetadata is leaf-canonical (65535 when inherited) — not display metadata.
 await updateMetadataV2(umi, {
   ...assetWithProof,
-  authority: treeAuthority,
+  authority: collectionAuthority,
+  coreCollection: collectionAddress,
+  currentMetadata: assetWithProof.currentMetadata,
   updateArgs,
 }).sendAndConfirm(umi);
 ```
+
+For a standalone cNFT (no collection), use `authority: treeAuthority` and omit `coreCollection`.
 
 ## Burn cNFT
 
@@ -377,7 +382,7 @@ V2 cNFTs use **MPL Core Collections** (not Token Metadata collections). Create c
 - Royalty enforcement via Core plugins (e.g., `ProgramDenyList`)
 - Collection-level operations and delegates
 
-**Royalties for cNFTs**: Leaf `sellerFeeBasisPoints` is informational for payment. **Enforcement** is the Core collection `Royalties` plugin rule set (`ProgramAllowList` / `ProgramDenyList`) — Bubblegum does not pay creators on transfer. For inherited SFBP (`65535` on the leaf), DAS resolves collection rate/payees onto main fields and exposes leaf values on `_raw`; `getAssetWithProof` puts leaf values on `currentMetadata` (see "Mint with Inherited Royalties" above).
+**Royalties for cNFTs**: Leaf `sellerFeeBasisPoints` is informational for payment. **Enforcement** is the Core collection `Royalties` plugin rule set (`ProgramAllowList` / `ProgramDenyList`) — Bubblegum does not pay creators on transfer. For inherited SFBP (`65535` on the leaf), DAS resolves collection rate/payees onto main fields and exposes leaf values on `_raw`; `getAssetWithProof` puts leaf values on `currentMetadata` (or use `asCurrentMetadataV2`) — see "Mint with Inherited Royalties" above.
 
 ### Soulbound NFTs
 
