@@ -45,7 +45,7 @@ mplx config wallets add <wallet-name> ~/.config/solana/id.json
 ### 3. Fund Your Wallet (devnet)
 
 ```bash
-mplx toolbox sol airdrop --amount 2
+mplx toolbox sol airdrop 2
 ```
 
 ### 4. Verify Setup
@@ -61,7 +61,7 @@ mplx config get rpcUrl && mplx config get keypair && mplx toolbox sol balance
 - **`mplx: command not found`** — Install the CLI: `npm i -g @metaplex-foundation/cli`
 - **`No RPC URL configured`** — Ask the user for an RPC address, or default to devnet: `mplx config set rpcUrl https://api.devnet.solana.com`
 - **`No keypair configured`** — Ask the user if they want to create a new CLI wallet (`mplx config wallets new <name> --hidden`) or add an existing Solana keypair (`mplx config wallets add <name> ~/.config/solana/id.json`)
-- **`0 SOL`** — Airdrop on devnet: `mplx toolbox sol airdrop --amount 2` (devnet only)
+- **`0 SOL`** — Airdrop on devnet: `mplx toolbox sol airdrop 2` (devnet only)
 
 > **Mainnet Safety:** If RPC URL contains `mainnet`, confirm with user before executing commands that spend SOL.
 
