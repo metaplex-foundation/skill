@@ -104,6 +104,8 @@ mplx bg nft create <TREE> --name "cNFT #3" --uri "<URI_3>"
 
 ## Inherited royalties (Bubblegum V2)
 
+Requires the CLI inherit-royalties release (`feat/bgumInheritSfbp` / [cli#136](https://github.com/metaplex-foundation/cli/pull/136)). Older published CLI only has `--royalties` and mints an explicit leaf rate (default 0% + payer @ 100%).
+
 Leaf `sellerFeeBasisPoints` `65535` (`0xffff`) plus empty leaf creators means **inherit from the Core collection `Royalties` plugin**. Effective rate and payees are collection-level; DAS display fields resolve them automatically.
 
 **Create a collection that can inherit:**
@@ -139,7 +141,7 @@ mplx bg nft create <TREE> --name "cNFT" --uri "<URI>" --collection <COL> \
 
 **Fetch** (`mplx bg nft fetch`): DAS `Royalty` / `Creators (display)` are the effective collection values when inherited. `Inherited: Yes (leaf sentinel 65535)` and `Creators (leaf / raw)` are diagnostic — only shown when DAS exposes `_raw` / `inherited`. Do not invent a sentinel if those fields are missing. Fetch needs DAS (not localnet).
 
-**Update** (`mplx bg nft update`): the CLI rebuilds leaf-canonical metadata (`65535` + empty creators) from SDK `currentMetadata` or DAS `basis_points_raw` / `creators_raw`. Do not write the display royalty % into the leaf — that breaks the hash.
+**Update** (`mplx bg nft update`, same CLI release): rebuilds leaf-canonical metadata (`65535` + empty creators) from SDK `currentMetadata` or DAS `royalty.basis_points_raw` / `creators_raw`. Older CLI passes display `metadata` and inherited updates fail the hash check. Do not write the display royalty % into the leaf.
 
 For SDK mint/read/write (`currentMetadata` vs display `metadata`), see `./sdk-bubblegum.md` "Mint with Inherited Royalties".
 

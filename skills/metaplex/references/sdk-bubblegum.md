@@ -121,7 +121,7 @@ DAS puts **collection-resolved** values on main fields and **leaf** values on `_
 |-----|--------|
 | Display / payout UI | `royalty.basis_points`, `royalty.percent`, `creators` |
 | Hashing / proofs / write ix | `royalty.basis_points_raw`, `creators_raw` |
-| Detect inherit | `royalty.inherited === true` or `basis_points_raw === 65535` |
+| Detect inherit | `royalty.inherited === true` or `royalty.basis_points_raw === 65535` |
 
 ```typescript
 import {
@@ -143,8 +143,8 @@ if (isInheritedSfbpRoyalty(asset.royalty)) {
 
 | Field | Role |
 |-------|------|
-| `metadata` | DAS display (`MetadataArgs`) — resolved rate/payees when inherited. **Do not** pass this as `currentMetadata` / leaf `metadata` on inherited assets. |
-| `currentMetadata` | Optional leaf-canonical `MetadataArgsV2Args` for V2 writes (sentinel `65535` when inherited). Omitted for V1. |
+| `metadata` | DAS display (`MetadataArgs`) — resolved rate/payees when inherited. **Do not** pass this as leaf data on inherited writes. |
+| `currentMetadata` | Leaf-canonical `MetadataArgsV2Args` (`mpl-bubblegum` >= 6.0.0). Sentinel `65535` + empty creators when inherited. Omitted on V1 / 5.x. |
 | `rpcAsset` | Raw DAS `getAsset` — `royalty.basis_points_raw`, `creators_raw`, `royalty.inherited` |
 | `rpcAssetProof` | Raw DAS proof |
 

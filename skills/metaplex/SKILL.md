@@ -123,7 +123,7 @@ Read `./references/cli.md` + `./references/cli-genesis.md` (CLI) or `./reference
 
 ### Compressed NFTs (Massive Scale)
 
-Use **Bubblegum** when minting thousands+ of NFTs at minimal cost. See `./references/cli-bubblegum.md` (CLI) or `./references/sdk-bubblegum.md` (SDK). For Bubblegum V2 inherited seller fees (`65535` sentinel + Core collection Royalties plugin): CLI flags and auto-inherit rules are in `./references/cli-bubblegum.md`; SDK mint/read/write (`currentMetadata`, not display `metadata`) is in `./references/sdk-bubblegum.md` "Mint with Inherited Royalties".
+Use **Bubblegum** when minting thousands+ of NFTs at minimal cost. See `./references/cli-bubblegum.md` (CLI) or `./references/sdk-bubblegum.md` (SDK). For Bubblegum V2 inherited seller fees (`65535` sentinel + Core collection Royalties plugin): CLI mint flags are in `./references/cli-bubblegum.md`. SDK: mint with `mintV2` `metadata` (omit SFBP, empty creators); writes use leaf-canonical `getAssetWithProof().currentMetadata` — as `currentMetadata` on `updateMetadataV2`, as `metadata` on `setCollectionV2` / `verifyCreatorV2` / `unverifyCreatorV2`. See `./references/sdk-bubblegum.md` "Mint with Inherited Royalties".
 
 ### Fungible Tokens
 
