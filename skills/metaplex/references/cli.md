@@ -60,7 +60,7 @@ Several commands support `--wizard` for interactive guided creation:
 | `mplx toolbox token create --wizard` | Token name, symbol, decimals, image, mint amount |
 | `mplx tm create --wizard` | NFT type, metadata, collection, royalties |
 | `mplx bg tree create --wizard` | Tree depth, buffer size, canopy |
-| `mplx bg nft create --wizard` | cNFT metadata, tree selection, collection |
+| `mplx bg nft create --wizard` | cNFT metadata, tree, collection, inherit vs explicit royalties |
 | `mplx cm create --wizard` | Full candy machine setup, upload, and insert |
 
 Wizards are recommended for first-time operations or when unsure about required parameters.
