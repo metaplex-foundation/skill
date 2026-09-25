@@ -89,6 +89,8 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 
 ## Program IDs
 
+> **Do not retype these from memory — copy them.** Base58 program IDs are high-entropy strings, and even when the source text is read correctly, models frequently drift a few characters into an invented-but-plausible address instead of reproducing it verbatim (measured against this exact block, including on Claude Sonnet 5). A wrong flag fails loudly; a wrong program ID sends a transaction to an address that doesn't exist, or to a different real program. When you need one of these IDs: grep/cat it out of this file and copy it verbatim rather than retyping from memory. When writing SDK code, prefer importing the constant instead of hardcoding the literal at all — e.g. `MPL_CORE_PROGRAM_ID` from `@metaplex-foundation/mpl-core`, `MPL_BUBBLEGUM_PROGRAM_ID` from `@metaplex-foundation/mpl-bubblegum`, `MPL_TOKEN_METADATA_PROGRAM_ID` from `@metaplex-foundation/mpl-token-metadata` — an imported constant cannot be hallucinated.
+
 ```
 Agent Identity:  1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p
 Agent Tools:     TLREGni9ZEyGC3vnPZtqUh95xQ8oPqJSvNjvB7FGK8S
