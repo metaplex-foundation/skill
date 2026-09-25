@@ -98,7 +98,11 @@ Token Metadata:  metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s
 Bubblegum V1:    BGUMAp9SX3uS4efGcFjPjkAQZ4cUNZhtHaMq64nrGf9D
 Bubblegum V2:    BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
 Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
+MPL Account Compression:  mcmt6YrQEMKw8Mw43FmpRLmf7BqRnFMKmAcbxE3xkAW
+SPL Account Compression:  cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK
 ```
+
+> A Bubblegum merkle tree created by the current CLI/SDK (V2 instructions — `mintV2`, `transferV2`, `createTreeConfigV2`, etc.) is owned by **MPL Account Compression**, not SPL. The V1 instruction set (`mintV1`, `transfer`, `createTreeConfig`, etc.) still uses **SPL Account Compression**. Check which program actually owns a given tree before assuming — don't default to SPL.
 
 ## Quick Decision Guide
 
