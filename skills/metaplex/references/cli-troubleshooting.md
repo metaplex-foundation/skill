@@ -13,7 +13,7 @@ When running on localhost/localnet, several CLI features are unavailable or requ
   # Note the mint address, then:
   mplx toolbox token add-metadata <MINT> --name <NAME> --symbol <SYM> --uri <URI>
   ```
-- **`mplx core asset update` and `mplx tm update`** also require Irys if re-uploading metadata (e.g., updating `--image`). On localnet, only update fields that do not trigger an upload (e.g., `--name`, `--uri` with a pre-existing URL).
+- **`mplx core asset update` and `mplx tm update`** also require Irys if re-uploading metadata. On localnet, only update fields that do not trigger an upload — `--uri` with a pre-existing URL is upload-free, but `--name` is not: it re-fetches the existing off-chain JSON from the asset's URI and re-uploads it, so it needs Irys regardless of the new name and fails on localnet even when the URI is reachable.
 - **`mplx toolbox token mint` and `mplx toolbox token transfer`** may fail if the mpl-toolbox program is not deployed on your localnet. Use `spl-token mint` and `spl-token transfer` as fallbacks.
 
 ## Troubleshooting
