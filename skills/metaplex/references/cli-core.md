@@ -18,7 +18,8 @@ mplx core asset fetch <ADDR>
 mplx core asset update <ASSETID> --name <NAME>
 mplx core asset update <ASSETID> --uri <URI>
 mplx core asset update <ASSETID> --image <PATH>                             # Re-uploads image via Irys
-mplx core asset update <ASSETID> --collectionId <ADDR>                      # Move to different collection
+mplx core asset update <ASSETID> --collection <ADDR>                        # Move to different collection
+mplx core asset update <ASSETID> --remove-collection                        # Remove from its current collection
 mplx core asset transfer <ASSETID> <NEW_OWNER>                              # Collection is auto-detected from the asset
 mplx core asset burn <ADDR>                                                    # Also: --collection <ADDR>, --list <file.json>
 mplx core asset template                                                    # Generate template files
