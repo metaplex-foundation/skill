@@ -11,9 +11,9 @@ mplx toolbox rent <BYTES>               # Get rent cost for a given number of by
 Send arbitrary base64-encoded instructions as raw transactions. Useful for executing custom program instructions or interacting with programs not directly supported by the CLI.
 
 ```bash
-mplx toolbox raw --instruction <base64>                    # Execute a base64-encoded instruction
-mplx toolbox raw --instruction <ix1> --instruction <ix2>   # Multiple instructions
-echo "<base64>" | mplx toolbox raw --stdin                 # From stdin
+mplx toolbox transaction --instruction <base64>                    # Execute a base64-encoded instruction
+mplx toolbox transaction --instruction <ix1> --instruction <ix2>   # Multiple instructions
+echo "<base64>" | mplx toolbox transaction --stdin                 # From stdin
 ```
 
 ## Templates
