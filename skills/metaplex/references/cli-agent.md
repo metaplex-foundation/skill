@@ -155,7 +155,7 @@ mplx agents fetch <ASSET>
 
 ### Register Agent + Launch Token (Bonding Curve)
 
-End-to-end workflow: register an agent and launch a bonding curve token linked to the agent. The `--agentMint` flag auto-derives the creator fee wallet from the agent's Core asset signer PDA.
+End-to-end workflow: register an agent and launch a bonding curve token linked to the agent. The `--agentAsset` flag auto-derives the creator fee wallet from the agent's Core asset signer PDA.
 
 ```bash
 # 1. Register agent
@@ -167,7 +167,7 @@ mplx agents register --name "My Agent" \
 mplx genesis launch create --launchType bonding-curve \
   --name "Agent Token" --symbol "AGT" \
   --image "https://gateway.irys.xyz/..." \
-  --agentMint <ASSET> --agentSetToken
+  --agentAsset <ASSET> --agentSetToken
 
 # 3. (Optional) Verify the agent has a token
 mplx agents fetch <ASSET>
@@ -192,7 +192,7 @@ mplx genesis launch create \
   --depositStartTime "<FUTURE_ISO_DATE>" \
   --raiseGoal 200 --raydiumLiquidityBps 5000 \
   --fundsRecipient <WALLET> \
-  --agentMint <ASSET> --agentSetToken
+  --agentAsset <ASSET> --agentSetToken
 ```
 
 ---

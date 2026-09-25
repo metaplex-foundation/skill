@@ -46,7 +46,7 @@ mplx genesis launch create --launchType bonding-curve --name <NAME> --symbol <SY
 
 # Bonding curve with agent (auto-derives creator fee wallet from agent PDA)
 mplx genesis launch create --launchType bonding-curve --name <NAME> --symbol <SYMBOL> \
-  --image <IRYS_URL> --agentMint <AGENT_ASSET> --agentSetToken
+  --image <IRYS_URL> --agentAsset <AGENT_ASSET> --agentSetToken
 
 # Register an existing genesis account on the platform
 mplx genesis launch register <GENESIS_ACCOUNT> --launchConfig <PATH_TO_JSON>
@@ -117,8 +117,8 @@ All-in-one command: creates the token, sets up the genesis account with a launch
 | `--fundsRecipient` | - | Launchpool only | - | Wallet receiving the unlocked portion of raised funds |
 | `--creatorFeeWallet` | - | No (bonding-curve only) | Launching wallet | Wallet to receive creator fees from swaps |
 | `--firstBuyAmount` | - | No (bonding-curve only) | - | SOL amount for fee-free initial purchase at launch |
-| `--agentMint` | - | No | - | Agent NFT (Core asset) address. Wraps launch transactions in Core execute instructions. Auto-derives creator fee wallet from agent PDA. |
-| `--agentSetToken` | - | No | `false` | Set the launched token as the agent's primary token. **Irreversible.** Requires `--agentMint`. |
+| `--agentAsset` | - | No | - | Agent NFT (Core asset) address. Wraps launch transactions in Core execute instructions. Auto-derives creator fee wallet from agent PDA. |
+| `--agentSetToken` | - | No | `false` | Set the launched token as the agent's primary token. **Irreversible.** Requires `--agentAsset`. |
 | `--description` | - | No | - | Token description (max 250 characters) |
 | `--website` | - | No | - | Project website URL |
 | `--twitter` | - | No | - | Project Twitter URL |
@@ -396,7 +396,7 @@ mplx genesis launch create --launchType bonding-curve \
   --name "Agent Token" \
   --symbol "AGT" \
   --image "https://gateway.irys.xyz/abc123" \
-  --agentMint <AGENT_ASSET> --agentSetToken
+  --agentAsset <AGENT_ASSET> --agentSetToken
 
 # Launchpool — configurable allocations, 48-hour deposit window
 mplx genesis launch create \
@@ -419,7 +419,7 @@ mplx genesis launch create \
   --raiseGoal 200 \
   --raydiumLiquidityBps 5000 \
   --fundsRecipient <WALLET_ADDRESS> \
-  --agentMint <AGENT_ASSET> --agentSetToken
+  --agentAsset <AGENT_ASSET> --agentSetToken
 
 # Launchpool with optional metadata
 mplx genesis launch create \
@@ -556,9 +556,9 @@ mplx genesis claim-unlocked <GENESIS>
 - Low-level commands have no `--wizard` mode — all flags must be provided explicitly.
 - **Bonding curve** launches have no deposit window — trading starts immediately after creation. Graduation to Raydium CPMM fires automatically when all tokens are sold.
 - **`--agentSetToken` is irreversible** — permanently links the launched token to the agent. Cannot be undone.
-- **`--agentMint`** auto-derives the creator fee wallet from the agent's Core asset signer PDA (`['mpl-core-execute', <agent_mint>]`). The first buy buyer also defaults to the agent PDA.
+- **`--agentAsset`** auto-derives the creator fee wallet from the agent's Core asset signer PDA (`['mpl-core-execute', <agent_mint>]`). The first buy buyer also defaults to the agent PDA.
 - **`--firstBuyAmount`** is fee-free (no protocol or creator fee) and is executed as part of the launch transaction. Only applies to bonding curve launches.
-- **`--agentMint` RPC propagation**: The Genesis API verifies agent ownership on-chain. Its backend may lag behind the CLI's RPC after a fresh agent registration. If the error says "Agent is not owned", the on-chain launch may still have succeeded — check with `agents fetch`. If the agent already has a token set, only the platform registration failed; complete it with `genesis launch register`. When scripting, add a ~30 second delay between `agents register` and `genesis launch create`.
+- **`--agentAsset` RPC propagation**: The Genesis API verifies agent ownership on-chain. Its backend may lag behind the CLI's RPC after a fresh agent registration. If the error says "Agent is not owned", the on-chain launch may still have succeeded — check with `agents fetch`. If the agent already has a token set, only the platform registration failed; complete it with `genesis launch register`. When scripting, add a ~30 second delay between `agents register` and `genesis launch create`.
 
 ## For more info
 
