@@ -133,11 +133,13 @@ ExecutionDelegateRecordV1 (104 bytes)
 
 ### Agent Registry PDAs
 
-| Account | Seeds |
-|---------|-------|
-| Agent Identity | `['agent_identity', asset]` |
-| Executive Profile | `['executive_profile', authority]` |
-| Execution Delegate Record | `['execution_delegate_record', executive_profile, agent_asset]` |
+Not all Agent Registry PDAs are derived under the same program — check the Program column, don't assume the section's own name.
+
+| Account | Seeds | Program |
+|---------|-------|---------|
+| Agent Identity | `['agent_identity', asset]` | Agent Identity (`1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p`) |
+| Executive Profile | `['executive_profile', authority]` | Agent Tools (`TLREGni9ZEyGC3vnPZtqUh95xQ8oPqJSvNjvB7FGK8S`) |
+| Execution Delegate Record | `['execution_delegate_record', executive_profile, agent_asset]` | Agent Tools (`TLREGni9ZEyGC3vnPZtqUh95xQ8oPqJSvNjvB7FGK8S`) |
 
 ---
 
