@@ -117,7 +117,7 @@ Links a Genesis token to a registered agent identity. Must be run in asset-signe
 mplx agents set-agent-token <ASSET> <GENESIS_ACCOUNT>
 ```
 
-> Requires asset-signer mode. Configure with `mplx config wallets add --name my-agent --type asset-signer --asset <ASSET>` then `mplx config wallets set my-agent`.
+> Requires asset-signer mode. Configure with `mplx config wallets add my-agent --asset <ASSET>` then `mplx config wallets set my-agent`. `name` is a positional argument, not a flag — `config wallets add` takes only `--asset` (generic Core asset-signer wallet) or `--agent` (agent wallet) as flags; there is no `--type`.
 
 ---
 
