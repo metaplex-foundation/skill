@@ -64,7 +64,7 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 
 > **CLI v0.1.0 breaking changes** (for agents/scripts migrating from older versions):
 > - `--json <file>` (used to pass an offchain metadata file path) is now `--offchain <file>`. `--json` is now the standard OCLIF flag for machine-readable output.
-> - All commands now return structured JSON when `--json` is passed — use this for programmatic/agent use.
+> - Most commands now return structured JSON when `--json` is passed — use this for programmatic/agent use. **Exception: `mplx bg nft create` did not migrate.** `--json <file>` on that command is still the offchain metadata file path (pre-migration behavior), and there is no `--offchain` flag on it at all — do not pass `--offchain` to `bg nft create`. A few other commands (`config get`, `toolbox template program`, `toolbox template website`) simply have no `--json` flag.
 
 | Task | CLI Support |
 |------|-------------|
