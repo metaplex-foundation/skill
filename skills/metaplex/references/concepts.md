@@ -202,7 +202,7 @@ Not all Agent Registry PDAs are derived under the same program — check the Pro
 |-------|-------|----------|
 | `InvalidTokenStandard` | Wrong standard for operation | Check asset's actual token standard |
 | `InvalidAuthority` | Signer doesn't match authority | Verify update/mint authority |
-| `CollectionNotVerified` | Collection not verified | Call `verifyCollectionV1` |
+| `NotVerifiedMemberOfCollection` / `CollectionCannotBeVerifiedInThisInstruction` | Collection not verified | Call `verifyCollectionV1` |
 | `TokenRecordNotFound` | Missing TokenRecord for pNFT | Include token record PDA |
 | `PluginNotFound` | Plugin doesn't exist | Add plugin first or check name |
 | `InsufficientFunds` | Not enough SOL | Fund wallet |

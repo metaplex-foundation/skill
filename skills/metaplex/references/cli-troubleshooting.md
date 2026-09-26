@@ -22,7 +22,7 @@ When running on localhost/localnet, several CLI features are unavailable or requ
 |-------|----------|
 | `InvalidTokenStandard` | Check asset's actual token standard |
 | `InvalidAuthority` | Verify update/mint authority matches signer |
-| `CollectionNotVerified` | Call `verifyCollectionV1` (TM collections need verification) |
+| `NotVerifiedMemberOfCollection` / `CollectionCannotBeVerifiedInThisInstruction` | Call `verifyCollectionV1` (TM collections need verification) |
 | `PluginNotFound` | Add plugin first or check type name spelling |
 | `InsufficientFunds` | Fund wallet with more SOL |
 | `Invalid data enum variant` | Check plugin JSON format (array, correct types) |
