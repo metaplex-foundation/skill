@@ -274,7 +274,7 @@ await unverifyCreatorV2(umi, {
 
 ## Fetch cNFTs (DAS API)
 
-> Requires a DAS-compatible RPC (e.g., Helius, Triton, QuickNode) and the `dasApi()` plugin. See `./sdk-umi.md` DAS section.
+> Requires a DAS-compatible RPC (e.g., Helius, Triton, QuickNode) and the `dasApi()` plugin. See `./sdk-das.md`.
 
 ```typescript
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
@@ -294,9 +294,10 @@ const asset = await umi.rpc.getAsset(assetId);
 // By owner
 const assets = await umi.rpc.getAssetsByOwner({ owner: walletAddress });
 
-// By collection
-const collectionAssets = await umi.rpc.getAssetsByCollection({
-  collection: collectionAddress,
+// By collection (base DAS — cNFTs are not Core AssetV1)
+const collectionAssets = await umi.rpc.getAssetsByGroup({
+  groupKey: 'collection',
+  groupValue: collectionAddress,
 });
 ```
 

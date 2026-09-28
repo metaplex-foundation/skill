@@ -13,6 +13,7 @@ This skill gives your AI coding agent full knowledge of Metaplex programs, CLI c
 | **Agent Registry** | On-chain agent identity, wallets, execution delegation | Yes | Yes | - |
 | **Genesis** | Token launches (launchpool + bonding curve) + Raydium graduation | Yes | Yes | - |
 | **Core** | Next-gen NFTs — single account, plugins, royalty enforcement | Yes | Yes | - |
+| **DAS API** | Indexed asset queries (owner/collection/group/agents) + Core helpers | - | Yes | - |
 | **Token Metadata** | Fungible tokens, NFTs, pNFTs, editions | Yes | Yes | Yes |
 | **Bubblegum** | Compressed NFTs via Merkle trees — massive scale at minimal cost | Yes | Yes | - |
 | **Candy Machine** | NFT drops with guards (allowlists, payments, limits) | Yes | Yes | - |
@@ -33,7 +34,7 @@ This skill gives your AI coding agent full knowledge of Metaplex programs, CLI c
 - Agent Registry: mint agents, register identity, delegate execution, set agent token
 - Genesis Launch API: launchpool and bonding curve launches, agent integration, creator fees, first buy
 - Bonding curve swap integration: fetch state, lifecycle helpers, quotes, slippage, execute swaps
-- All CLI operations plus: fetch by owner/collection/creator, DAS API queries, delegates, lock/unlock, print editions, verify/unverify creators and collections, freeze/thaw, soulbound NFTs, plugin management
+- All CLI operations plus: fetch by owner/collection/creator/group, DAS API queries (`digital-asset-standard-api` + `mpl-core-das`), delegates, lock/unlock, print editions, verify/unverify creators and collections, freeze/thaw, soulbound NFTs, plugin management
 
 **Kit SDK** (@solana/kit) — minimal dependencies:
 - Token Metadata operations: create/transfer NFTs, pNFTs, fungibles, PDAs
@@ -46,9 +47,10 @@ The skill uses progressive disclosure — a lightweight router (SKILL.md, ~100 l
 SKILL.md                         Router — loaded when skill activates
   references/cli.md              Shared CLI setup (loaded for any CLI task)
   references/cli-core.md         Core CLI commands
+  references/sdk-das.md          DAS API + mpl-core-das helpers
   references/sdk-token-metadata.md  TM SDK patterns
   references/concepts.md         Account structures, PDAs
-  ... (12 reference files total)
+  ... (reference files)
 ```
 
 ## Install
