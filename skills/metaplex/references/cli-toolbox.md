@@ -41,8 +41,8 @@ mplx toolbox storage withdraw <AMOUNT>            # Withdraw from Irys
 
 ```bash
 mplx toolbox sol balance
-mplx toolbox sol airdrop --amount <NUM>
-mplx toolbox sol transfer <DESTINATION> <AMOUNT>
+mplx toolbox sol airdrop <AMOUNT> [ADDRESS]       # Positional args; address defaults to active wallet
+mplx toolbox sol transfer <AMOUNT> <DESTINATION>  # Positional args; amount comes FIRST
 mplx toolbox sol wrap <AMOUNT>                    # SOL -> wSOL
 mplx toolbox sol unwrap                           # wSOL -> SOL
 ```

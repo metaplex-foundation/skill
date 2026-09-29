@@ -106,12 +106,15 @@ Only tree creation (`mplx bg tree create`) and minting (`mplx bg nft create`) wo
 
 ---
 
-## Program IDs
+## Program ID
 
 ```
-Bubblegum V1: BGUMAp9SX3uS4efGcFjPjkAQZ4cUNZhtHaMq64nrGf9D
-Bubblegum V2: BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
+Bubblegum: BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
 ```
+
+There is one Bubblegum program. V2 was an in-place upgrade of this same program — it
+added the `*V2` instruction variants alongside the originals rather than deploying to
+a new address. Do not look for a separate "V1" program ID.
 
 ---
 

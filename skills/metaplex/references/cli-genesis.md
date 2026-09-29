@@ -546,7 +546,18 @@ mplx genesis claim-unlocked <GENESIS>
 
 ## Important Notes
 
-- Default deposit/withdraw fees: 200 bps (2%). See: https://metaplex.com/docs/protocol-fees
+- Default protocol fees are **per bucket type**, not a single rate. From the `@metaplex-foundation/genesis` defaults:
+
+  | Bucket | Deposit | Withdraw | Claim |
+  |---|---|---|---|
+  | LaunchPool | 0 | 0 | 0 |
+  | BondingCurve | 200 bps | 200 bps | — |
+  | Presale | 200 bps | 200 bps | 0 |
+  | Vault | 200 bps | 200 bps | — |
+  | Unlocked | — | — | 500 bps |
+
+  Note that **launchpool — the default launch type — has no deposit or withdraw fee**.
+  For current live rates, see: https://metaplex.com/docs/protocol-fees
 - Launch API `--raiseGoal` is in **whole units** (e.g., `200` = 200 SOL), NOT base units.
 - Low-level commands use **base units** (1 SOL = 1000000000) and **Unix seconds** (not milliseconds).
 - Cannot add buckets after `finalize`. `finalize` and `revoke` are **irreversible**.
