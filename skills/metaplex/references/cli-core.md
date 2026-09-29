@@ -18,7 +18,8 @@ mplx core asset fetch <ADDR>
 mplx core asset update <ASSETID> --name <NAME>
 mplx core asset update <ASSETID> --uri <URI>
 mplx core asset update <ASSETID> --image <PATH>                             # Re-uploads image via Irys
-mplx core asset update <ASSETID> --collectionId <ADDR>                      # Move to different collection
+mplx core asset update <ASSETID> --collection <ADDR>                        # Move to different collection
+mplx core asset update <ASSETID> --remove-collection                        # Remove from its current collection
 mplx core asset transfer <ASSETID> <NEW_OWNER>                              # Collection is auto-detected from the asset
 mplx core asset burn <ADDR>                                                    # Also: --collection <ADDR>, --list <file.json>
 mplx core asset template                                                    # Generate template files
@@ -174,7 +175,7 @@ Most CLI commands work with asset-signer wallets. The transaction wrapping is tr
 - **Core**: `asset create`, `asset transfer`, `asset burn`, `asset update`, `collection create`
 - **Toolbox SOL**: `balance`, `transfer` (`wrap`/`unwrap` may fail; see CPI limitations)
 - **Toolbox Token**: `transfer`, `create`, `mint`
-- **Toolbox Raw**: `raw --instruction <base64>`
+- **Toolbox Transaction**: `transaction --instruction <base64>`
 - **Token Metadata**: `transfer`, `create`, `update`
 - **Bubblegum**: `nft create` (public trees), `nft transfer`, `nft burn`, `collection create`
 - **Genesis**: `create`, `bucket add-*`, `deposit`, `withdraw`, `claim`, `finalize`, `revoke`
@@ -183,9 +184,9 @@ Most CLI commands work with asset-signer wallets. The transaction wrapping is tr
 
 ```bash
 # Execute arbitrary base64-encoded instructions as the PDA
-mplx toolbox raw --instruction <base64>
-mplx toolbox raw --instruction <ix1> --instruction <ix2>
-echo "<base64>" | mplx toolbox raw --stdin
+mplx toolbox transaction --instruction <base64>
+mplx toolbox transaction --instruction <ix1> --instruction <ix2>
+echo "<base64>" | mplx toolbox transaction --stdin
 ```
 
 ### CPI Limitations

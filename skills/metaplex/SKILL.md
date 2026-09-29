@@ -4,7 +4,7 @@ description: Metaplex development on Solana — NFTs, tokens, compressed NFTs, c
 license: Apache-2.0
 metadata:
   author: metaplex-foundation
-  version: "0.3.0"
+  version: "0.4.0"
   openclaw: {"emoji":"💎","os":["darwin","linux","win32"],"requires":{"bins":["node"]},"homepage":"https://metaplex.com/docs"}
 ---
 
@@ -48,6 +48,7 @@ Metaplex provides the standard infrastructure for NFTs and tokens on Solana:
 | CLI: Fungible tokens | `./references/cli.md` + `./references/cli-toolbox.md` |
 | SDK setup (Umi) | `./references/sdk-umi.md` |
 | SDK: Core NFTs | `./references/sdk-umi.md` + `./references/sdk-core.md` + `./references/metadata-json.md` |
+| SDK: DAS API (asset queries, Core listing helpers) | `./references/sdk-umi.md` + `./references/sdk-das.md` |
 | SDK: Token Metadata | `./references/sdk-umi.md` + `./references/sdk-token-metadata.md` + `./references/metadata-json.md` |
 | SDK: Compressed NFTs (Bubblegum) | `./references/sdk-umi.md` + `./references/sdk-bubblegum.md` + `./references/metadata-json.md` |
 | SDK: Token Metadata with Kit | `./references/sdk-token-metadata-kit.md` + `./references/metadata-json.md` |
@@ -83,11 +84,13 @@ The `mplx` CLI can handle most Metaplex operations directly. **Read `./reference
 | Compressed NFTs (cNFTs) | ✅ (batch limit ~100, use SDK for larger) |
 | Execute (asset-signer wallets) | ✅ |
 | Check SOL balance / Airdrop | ✅ |
-| Query assets by owner/collection | ❌ SDK only (DAS API) |
+| Query assets by owner/collection/group | ❌ SDK only (DAS API — see `./references/sdk-das.md`) |
 | Token launch (Genesis) | ✅ |
 | Bonding curve swap (Genesis) | ✅ |
 
 ## Program IDs
+
+> **Do not retype these from memory — copy them.** Base58 program IDs are high-entropy strings, and even when the source text is read correctly, models frequently drift a few characters into an invented-but-plausible address instead of reproducing it verbatim (measured against this exact block, including on Claude Sonnet 5). A wrong flag fails loudly; a wrong program ID sends a transaction to an address that doesn't exist, or to a different real program. When you need one of these IDs: grep/cat it out of this file and copy it verbatim rather than retyping from memory. When writing SDK code, prefer importing the constant instead of hardcoding the literal at all — e.g. `MPL_CORE_PROGRAM_ID` from `@metaplex-foundation/mpl-core`, `MPL_BUBBLEGUM_PROGRAM_ID` from `@metaplex-foundation/mpl-bubblegum`, `MPL_TOKEN_METADATA_PROGRAM_ID` from `@metaplex-foundation/mpl-token-metadata` — an imported constant cannot be hallucinated.
 
 ```
 Agent Identity:  1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p
@@ -95,16 +98,19 @@ Agent Tools:     TLREGni9ZEyGC3vnPZtqUh95xQ8oPqJSvNjvB7FGK8S
 Genesis:         GNS1S5J5AspKXgpjz6SvKL66kPaKWAhaGRhCqPRxii2B
 Core:            CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d
 Token Metadata:  metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s
-Bubblegum V1:    BGUMAp9SX3uS4efGcFjPjkAQZ4cUNZhtHaMq64nrGf9D
-Bubblegum V2:    BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
+Bubblegum:       BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY
 Core Candy:      CMACYFENjoBMHzapRXyo1JZkVS6EtaDDzkjMrmQLvr4J
+MPL Account Compression:  mcmt6YrQEMKw8Mw43FmpRLmf7BqRnFMKmAcbxE3xkAW
+SPL Account Compression:  cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK
 ```
+
+> A Bubblegum merkle tree created by the current CLI/SDK (V2 instructions — `mintV2`, `transferV2`, `createTreeConfigV2`, etc.) is owned by **MPL Account Compression**, not SPL. The V1 instruction set (`mintV1`, `transfer`, `createTreeConfig`, etc.) still uses **SPL Account Compression**. Check which program actually owns a given tree before assuming — don't default to SPL.
 
 ## Quick Decision Guide
 
 ### Autonomous Agents
 
-Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. The **Mint Agent API** (`mintAndSubmitAgent`) is the recommended path — it creates the Core asset and registers identity in a single transaction. For existing assets, use `registerIdentityV1` directly. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Agents can optionally link a Genesis token via `setAgentTokenV1`. Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
+Use **Agent Registry** to register on-chain identity and execution delegation for MPL Core assets. The **Mint Agent API** (`mintAndSubmitAgent`) is the recommended path — it creates the Core asset and registers identity in a single transaction. For existing assets, use `registerIdentityV1` directly. Any Core asset already has a built-in wallet (Asset Signer PDA) via Core's Execute hook — the registry adds discoverable identity records and lets owners delegate an off-chain executive to operate the agent. Agents can optionally link a Genesis token via `setAgentTokenV1`. Discover agents via DAS (`searchAssets({ isAgent: true })` — see `./references/sdk-das.md`). Read `./references/cli-agent.md` (CLI) or `./references/sdk-umi.md` + `./references/sdk-agent.md` (SDK).
 
 ### Token Launches (Token Generation Event / Fair Launch / Bonding Curve)
 
