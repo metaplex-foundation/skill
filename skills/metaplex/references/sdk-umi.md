@@ -30,6 +30,8 @@ npm install @metaplex-foundation/umi-bundle-defaults \
 #   @metaplex-foundation/umi-signer-wallet-adapters (for browser wallet integration)
 ```
 
+The default bundle also needs `@solana/web3.js`. Umi 1.6.0+ requires `@solana/web3.js@^1.99.0`, because that's the first release that understands V1 transactions.
+
 ---
 
 ## Basic Setup
@@ -94,7 +96,7 @@ await createV1(umi, { ...args })
   .sendAndConfirm(umi);
 ```
 
-### Compute Budget
+### Compute Budget (V0 — default)
 
 ```typescript
 import { setComputeUnitLimit, setComputeUnitPrice } from '@metaplex-foundation/mpl-toolbox';
@@ -104,6 +106,45 @@ await createV1(umi, { ...args })
   .prepend(setComputeUnitPrice(umi, { microLamports: 5000 }))
   .sendAndConfirm(umi);
 ```
+
+### V1 Transactions (SIMD-0385, Umi >= 1.6.0)
+
+V1 transactions can be up to **4,096 bytes** (V0 tops out at 1,232). The compute budget lives in the message as a `TransactionV1Config` rather than in ComputeBudget instructions, and **address lookup tables are not supported**. Umi still **defaults to V0**, so V1 is opt-in.
+
+```typescript
+import { lamports } from '@metaplex-foundation/umi';
+
+await createV1(umi, { ...args })
+  .useV1()
+  .setTransactionConfig({
+    computeUnitLimit: 600_000,
+    priorityFee: lamports(600), // TOTAL fee, not a per-CU price
+  })
+  .sendAndConfirm(umi);
+```
+
+**App-wide opt-in:** `createUmi(endpoint, { defaultTransactionVersion: 1 })`. Without the bundle, use `umi.use(web3JsTransactionFactory({ defaultTransactionVersion: 1 }))`. Builders returned by Metaplex program libraries pick up the default too. A builder that calls `.useV0()` keeps V0.
+
+**Rules (Umi throws before sending if you break them):**
+- Do not add `setComputeUnitLimit` / `setComputeUnitPrice` (or any ComputeBudget instruction) to a V1 builder. Set them with `setTransactionConfig()` instead.
+- A V1 builder can't call `setAddressLookupTables`. A transaction that needs an ALT has to stay on V0 (`.useV0()`).
+- Calling `setTransactionConfig()` on a legacy or V0 builder throws.
+- `setTransactionConfig()` replaces the whole config, so pass every field in one call.
+
+**Converting a V0 price to V1:** `priorityFee` = `ceil(computeUnitLimit × microLamports / 1_000_000)` lamports. For example, 600,000 CU × 1,000 µL = `lamports(600)`.
+
+**`TransactionV1Config` fields:**
+
+| Field | Range | Builder default if omitted |
+|-------|-------|----------------------------|
+| `computeUnitLimit` | integer 0–1,400,000 | `min(200_000 × ixCount, 1_400_000)` |
+| `priorityFee` | `SolAmount` (total) | none |
+| `loadedAccountsDataSizeLimit` | ≤ 64 MiB | 64 MiB |
+| `heapSize` | 32,768–262,144, a multiple of 1,024 | none |
+
+**Direct `umi.transactions.create()`:** `version` is now required on every input, including `version: 0` for V0. For V1, set `version: 1` and pass explicit nonzero `transactionConfig.computeUnitLimit` and `loadedAccountsDataSizeLimit`. The builder defaults above are not applied here, and the runtime treats an unset limit as zero.
+
+**Wallets:** the connected wallet has to support transaction version `1`. Umi can serialize V1 for wallet adapters, but it can't make a wallet sign it. Don't set V1 as the app default until every wallet path you support has been tested.
 
 ### Safe Fetch (returns null if not found)
 
@@ -214,6 +255,8 @@ Consult these Metaplex docs when you need deeper detail than this reference prov
 - Metaplex Umi plugins: https://metaplex.com/docs/dev-tools/umi/metaplex-umi-plugins
 - Public keys and signers: https://metaplex.com/docs/dev-tools/umi/public-keys-and-signers
 - Transactions: https://metaplex.com/docs/dev-tools/umi/transactions
+- Migrating V0 → V1 transactions: https://metaplex.com/docs/dev-tools/umi/guides/migrate-to-transaction-v1
+- Optimal CU / priority fees (V1): https://metaplex.com/docs/dev-tools/umi/guides/optimal-transactions-with-compute-units-and-priority-fees
 - Storage: https://metaplex.com/docs/dev-tools/umi/storage
 - RPC: https://metaplex.com/docs/dev-tools/umi/rpc
 - DAS API: https://metaplex.com/docs/dev-tools/das-api
